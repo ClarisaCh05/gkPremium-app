@@ -1,0 +1,251 @@
+.c-item {
+    height: 85vh;
+}
+
+.c-img {
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9);
+}
+
+@keyframes slideIn {
+    from {
+      transform: translateY(100px); /* Start position */
+    }
+    to {
+      transform: translateY(0); /* End position */
+    }
+  }
+
+.katalog-c-ctr {
+    width: 100%;
+    padding-bottom: 16px;
+    margin-top: 16px;
+    opacity: 0; /* Initially hide the box */
+    transition: opacity 0.5s ease; /* Smooth fade-in transition */
+}
+
+.katalog-c-ctr.animate,
+.bridestation.animate,
+.kategori.animate,
+.seen-c.animate {
+    opacity: 1; /* Show the box */
+    animation: slideIn 1s ease; /* Apply slide-in animation */
+}
+
+.katalog-c {
+    margin: 32px 16px 32px 16px;
+}
+
+.seen-c {
+    margin: 32px 16px 16px 32px;
+    opacity: 0; /* Initially hide the box */
+    transition: opacity 0.5s ease; /* Smooth fade-in transition */
+}
+
+.card {
+    border: none;
+    border: 0;
+    text-decoration: none;
+    color: black;
+}
+
+.card:hover {
+    color: black;
+}
+
+.katalog-c .carousel-inner {
+    padding: 1em;
+}
+
+.katalog-c .carousel-control-prev,
+.katalog-c .carousel-control-next {
+    background-color: #e1e1e1;
+    width: 6vh;
+    height: 6vh;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.katalog-c .carousel-control-prev span,
+.katalog-c .carousel-control-next span {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+@media screen and (min-width: 568px) {
+    .cards-wrapper {
+        display: flex;
+    }
+    
+    .card {
+        margin: 0 .5em;
+        width: calc(100%/4);
+        height: 562px;
+    }
+
+    .image-wrapper {
+        height: 25vw;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+
+@media screen and (max-width: 567px) {
+    .card:not(:first-child) {
+        display: none;
+    }
+}
+
+.image-wrapper {
+    width: 100%; /* or a fixed width if you prefer */
+    height: 20rem; /* or any fixed height you prefer */
+    overflow: hidden;
+    position: relative;
+}
+
+.image-wrapper img {
+    width: 100%;
+    height: 90%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.bridestation {
+    background-image: url('/img/6812b986562857b23523c633901efc44.jpg');
+    background-repeat: no-repeat;
+    background-color: beige;
+    display: flex;
+    height: 90vh;
+    width: 100%;
+    background-size: cover;
+    padding-top: 40px;
+    opacity: 0; /* Initially hide the box */
+    transition: opacity 0.5s ease; /* Smooth fade-in transition */
+}
+
+.bridestation .bs-desc {
+    font-size: 20px;
+}
+
+.sub-title {
+    font-size: 64px;
+    font-weight: 500;
+}
+
+.bs-card {
+    width: 100%;
+}
+
+@media screen and (max-width: 567px) {
+    .bridestation {
+        padding-top: 16px;
+        height: 100vh;
+    }
+
+    .bridestation .bs-col-card {
+        display: none;
+    }
+
+    .sub-title {
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .bridestation .bs-desc {
+        font-size: 16px;
+    }
+}
+
+.kategori {
+    margin: 32px;
+}
+
+
+.kategori .container {
+    margin-top: 32px;
+}
+
+#princess {
+    background-image: url('/img/PRINCESS\ BELLE\ PREM\ DEWASA.jpg');
+}
+
+#hero {
+    background-image: url('/img/HERO\ IRONMAN\ DEWASA.jpg');
+}
+
+#internasional {
+    background-image: url('/img/IMG_20171110_211532_802\ \(1\).jpg');
+}
+
+#karakter {
+    background-image: url('/img/INTERNATIONAL\ BELLYDANCE\ DONGKER\ DEWASA.jpg');
+}
+
+.kategori {
+    opacity: 0; /* Initially hide the box */
+    transition: opacity 0.5s ease; /* Smooth fade-in transition */
+}
+
+.kategori .col {
+    display: flex;
+    height: 50vh;
+    width: 100%;
+    color: white;
+    font-weight: 500;
+    font-size: 24px;
+    background-size: cover;
+    margin-right: 16px;
+    margin-bottom: 16px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    transition: filter 0.3s linear; /* Add transition for smooth animation */
+}
+
+.kategori .col::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2); /* Adjust opacity as needed */
+}
+
+.kategori .col:hover::before {
+    background-color: rgba(0, 0, 0, 0.1); /* Adjust hover opacity as needed */
+}
+
+.kategori .col:hover {
+    filter: brightness(1.2); /* Adjust brightness on hover */
+}
+
+.kategori .col p {
+    margin: 16px;
+}
+
+.seen-c .carousel-inner {
+    padding: 1em;
+}
+
+.seen-c .carousel-control-prev,
+.seen-c .carousel-control-next {
+    background-color: #e1e1e1;
+    width: 6vh;
+    height: 6vh;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.seen-c .carousel-control-prev span,
+.seen-c .carousel-control-next span {
+    width: 1.5rem;
+    height: 1.5rem;
+}

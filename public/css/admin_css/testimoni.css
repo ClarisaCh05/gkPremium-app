@@ -1,0 +1,100 @@
+h1 {
+    font-size: 64px;
+}
+
+.search-testimoni {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    position: relative;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    width: 95%;
+}
+
+.input input {
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--box);
+    width: 90%;
+    font-size: 16px;
+    margin-top: 1px;
+}
+
+.input i {
+    margin-right: 16px;
+    margin-bottom: 8px;
+}
+
+.add-ctr {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.add-ctr a {
+    margin-top: 24px;
+    padding: 8px 16px;
+    background-color: var(--main);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0px 2px 4px 0px rgb(187, 183, 183);
+    text-decoration: none;
+    color: black;
+}
+
+.add-ctr a i {
+    margin-left: 8px;
+}
+
+.table-kostum img {
+    width: 100%;
+}
+
+/* 
+.table-kostum th {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid var(--box);
+}
+
+.table-kostum td {
+    border: 1px solid var(--box);
+    padding: 8px;
+}
+
+.table-kostum td:first-child {
+    text-align: center;
+    width: 30%;
+}
+
+.table-kostum td:last-child {
+    text-align: center;
+}
+
+.table-kostum p {
+    margin: 8px 0px;
+}
+
+.table-kostum span {
+    margin-left: 4px;
+}
+
+.table-kostum .edit {
+    background-color: var(--sunting);
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+    margin-right: 8px;
+}
+
+.table-kostum .delete {
+    background-color: var(--trash);
+    border: none;
+    border-radius: 5px;
+    width: 35px;
+    height: 35px;
+} */

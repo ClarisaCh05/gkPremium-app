@@ -1,0 +1,94 @@
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    background-color: white;
+}
+
+header img {
+    height: 75px;
+    margin-left: 16px;
+}
+
+.header-search {
+    position: relative;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.header-search .search i {
+    position: absolute;
+    font-size: 16px;
+}
+
+.header-search .search .icon {
+    padding: 10px;
+    min-width: 40px;
+    margin-top: 16px;
+}
+
+.header-search .search input {
+    width: 95%;
+    padding: 8px 8px 8px 40px;
+    margin-top: 16px;
+    background-color: #F7F7F7;
+    border: none;
+    font-size: 16px;
+}
+
+.header-search .gk-acc {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.header-search .gk-acc i {
+    font-size: 24px;
+    margin: 4px;
+}
+
+.header-search .btn-ctr {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-search button {
+    margin-right: 16px;
+    font-size: 16px;
+}
+
+.header-search .login {
+    color: black;
+    border: none;
+    font-weight: bold;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.header-search .login:hover {
+    text-decoration: underline;
+}
+
+.header-search .sign-in {
+    color: black;
+    border: none;
+    font-weight: bold;
+    padding: 9px 16px;
+    text-decoration: none;
+}
+
+.header-search .sign-in:hover {
+    text-decoration: underline;
+}
+
+main {
+    position: relative;
+    margin-top: 8.8rem;
+    width: 100%;
+    max-height: calc(100% - 7rem);
+    overflow-x: auto;
+    overflow-y: auto;
+}

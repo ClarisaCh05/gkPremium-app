@@ -1,0 +1,50 @@
+.row-login {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+.col-login {
+    margin-left: 40px;
+}
+
+.csr {
+    margin-left: 60px;
+}
+
+.carousel-inner img {
+    height: 44rem;
+}
+
+.logo img {
+    width: 10rem;
+}
+
+.title p {
+    font-size: 40px;
+    font-weight: 600;
+}
+
+.form.login p {
+    padding: 0;
+    margin-bottom: 8px;
+}
+
+.form.login input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 16px;
+}
+
+.form.login a {
+    font-size: 12px;
+}
+
+.login-btn {
+    width: 30%;
+    padding: 8px;
+    background-color: black;
+    border-radius: 5px;
+    color: white;
+    letter-spacing: 3px;
+    margin: 16px 0px 16px 0;
+}

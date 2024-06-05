@@ -1,0 +1,57 @@
+footer {
+    background-color: black;
+    position: relative;
+    height: 100%;
+    padding: 48px 16px 16px 16px;
+    color: white;
+    width: 100%;
+}
+
+footer img {
+    height: 150px;
+    margin: 32px;
+}
+
+.title {
+    margin-top: 32px;
+    margin-bottom: 16px;
+}
+
+.title i {
+    margin-right: 16px;
+    font-size: 24px;
+}
+
+.title span {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.main-info {
+    font-weight: bold;
+}
+
+.contacts a,
+.online-shop a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.contacts i {
+    margin-right: 8px;
+    font-size: 18px;
+    margin-bottom: 16px;
+}
+
+.online-shop img{
+    margin: 0;
+    height: 20px;
+    width: 20px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+.online-shop .shoope-img {
+    background-color: white;
+}

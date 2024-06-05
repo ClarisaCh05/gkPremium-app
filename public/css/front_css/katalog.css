@@ -1,0 +1,96 @@
+.filter-ctr {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.filter-ctr select {
+    margin: 1em 0.5em;
+    padding: 4px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+label {
+    font-size: 14px;
+}
+
+.breadcrumbs-ctr {
+    margin-top: 16px;
+    margin-left: 32px;
+}
+
+.container {
+    margin-bottom: 24px;
+}
+
+.cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.image-wrapper {
+    height: 50vh;
+}
+
+.image-wrapper img {
+    height: 50vh;
+    object-fit: cover;
+}
+
+.card {
+    margin: 1em .5em;
+    border: none;
+}
+
+.card-body {
+    margin-top: 16px;
+    padding: 0;
+}
+
+.card-body h5 {
+    font-weight: 600;
+}
+
+.card-body .card-title {
+    font-size: 16px;
+}
+
+.card-text {
+    margin-top: 16px;
+}
+
+.card:hover {
+    cursor: pointer;
+}
+
+@media screen and (min-width: 564px) {
+    /* .col-md-3 {
+        align-items: center;
+        text-align: center;
+    } */
+}
+
+@media screen and (max-width: 1000px) {
+    .cards-wrapper {
+        justify-content: center;
+    }
+    .col-md-3 {
+        flex: 0 0 48%;
+        max-width: 48%;
+    }
+    .card {
+        margin: 1em;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .col-md-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .card {
+        margin: 0.5em;
+    }
+}

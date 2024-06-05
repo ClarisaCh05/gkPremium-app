@@ -1,0 +1,17 @@
+@font-face {
+    font-family: "PlayfairDisplay";
+    src: url("/font/Playfair_Display/PlayfairDisplay-VariableFont_wght.ttf");
+}
+
+* {
+    font-family: PlayfairDisplay;
+}
+
+:root {
+    --main: #F4EBFE;
+    --box: #a2a2a2;
+    --kategori: #DEC8F8;
+    --tambah: #E0E36E;
+    --trash: #FF3838;
+    --sunting: #6AD6F9;
+}

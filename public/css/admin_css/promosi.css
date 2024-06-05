@@ -1,0 +1,60 @@
+h1 {
+    font-size: 64px;
+}
+
+.container {
+    margin: 24px 0px;
+    display: inline-flex;
+    justify-content: space-between;
+    padding: 16px 0px;
+    width: 95%;
+}
+
+/* .container input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--box);
+    width: 12rem;
+} */
+
+.add-ctr a {
+    margin-top: 24px;
+    padding: 8px 16px;
+    background-color: var(--main);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0px 2px 4px 0px rgb(187, 183, 183);
+    text-decoration: none;
+    color: black;
+}
+
+.add-ctr a i {
+    margin-left: 8px;
+}
+
+.promo-ctr .preview .image {
+    width: 95%;
+    height: 350px;
+    background-color: var(--box);
+    margin: 16px 0px;
+}
+
+.promo-ctr .btn-ctr .edit {
+    padding: 8px;
+    background-color: var(--sunting);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.promo-ctr .btn-ctr .trash {
+    padding: 8px;
+    background-color: var(--trash);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-right: 8px;
+}
