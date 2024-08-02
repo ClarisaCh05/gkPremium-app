@@ -1,134 +1,156 @@
-@extends('admin_layouts.master')
-@section('css')
-    <style>
-      .modal-backdrop.fade.show {
-        z-index: 1 !important;
-      }
-    </style>
-@endsection
-@section('main')
-<div class="title">
-  <a href="{{ route('kostum.getCompleteCostume') }}">
-      <i class="fas fa-angle-left"></i>
-      <h1>Tambah Kostum</h1>
-  </a>
-</div>
-<form class="add-costume">
-  @csrf
-  <div class="inputs-ctr">
-    <div class="inputs">
-      <div class="input">
-        <h3>Nama Kostum</h3>
-        <input type="text" name="name" class="name">
-      </div>
-      <div class="input-cat">
-        <h3>Kategori</h3>
-        <div class="cat-btn">
-        <select name="category" class="form-select" id="multiple-select-field" data-placeholder="Pilih Kategori" multiple>
-          <option value="14">Adat</option>
-          <option value="6">Aksesoris</option>
-          <option value="12">Animal</option>
-          <option value="15">Apron</option>
-          <option value="7">Bridal Sration</option>
-          <option value="19">Cosplay</option>
-          <option value="16">Futuristik</option>
-          <option value="10">Halloween</option>
-          <option value="11">Hero</option>
-          <option value="3">Internasional</option>
-          <option value="4">Karakter</option>
-          <option value="18">Model</option>
-          <option value="9">Natal</option>
-          <option value="13">Onesie</option>
-          <option value="20">Prince</option>
-          <option value="2">Princess</option>
-          <option value="5">Profesi</option>
-          <option value="1">Sayurbuah</option>
-          <option value="17">Old</option>
-        </select>
-      </div>
-    </div>
-    <div class="input">
-      <h3>Ukuran</h3>
-      <select class="form-select size" name="size">
-        <option default></option>
-        <option value="anak">Anak</option>
-        <option value="dewasa">Dewasa</option>
-        <option value="anak dan dewasa">Anak & Dewasa</option>
-      </select>
-    </div>
-    <div class="inputs">
-      <div class="input">
-        <h3>Harga</h3>
-        <input type="number" name="price" class="price">
-      </div>
-      <div class="input">
-        <h3>Deskripsi</h3>
-        <textarea name="description" class="description"></textarea>
-      </div>
-      <div class="input-foto">
-        <h3>Foto</h3>
-        <div class="verify-sub-box">
-          <div class="file-loading">
-            <input name="image" id="multiplefileupload" type="file" accept=".jpg" multiple>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="submit-btn">
-    <button type="submit" class="tambah">
-      Tambah Kostum
-      <i class="fas fa-check"></i>
-    </button>
-  </div>
-</form>
+<script>
+    $(function () {
+        let $chatInput = $(".chat-input");
+        let $messageWrapper = $("#messageWrapper");
 
-<!-- Success Modal -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body text-center">
-        <i class="fas fa-check-circle text-success" style="font-size: 3em;"></i>
-        <p>Your costume has been added successfully!</p>
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-      </div>
-    </div>
-  </div>
-</div>
-@endsection
-@section('script')
-<script type="text/javascript">
+        // Get previous_url from the query string and set it as the initial chat input value
+        let urlParams = new URLSearchParams(window.location.search);
+        let previousUrl = urlParams.get('previous_url');
 
-  $('#multiple-select-field').select2( {
-      theme: "bootstrap-5",
-      width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-      placeholder: $( this ).data( 'placeholder' ),
-      closeOnSelect: false,
-  });
+        if (previousUrl) {
+            $chatInput.html(`<a href="${previousUrl}" target="_blank">${previousUrl}</a>`);
+        }
 
-  $("#multiplefileupload").fileinput({
-      'theme': 'fa',
-      'uploadUrl': '#',
-      showRemove: false,
-      showUpload: false,
-      showZoom: false,
-      showCaption: false,
-      browseClass: "btn btn-danger",
-      browseLabel: "",
-      browseIcon: "<i class='fa fa-plus'></i>",
-      overwriteInitial: false,
-      initialPreviewAsData: true,
-      fileActionSettings :{
-          showUpload: false,
-          showZoom: false,
-          removeIcon: "<i class='fa fa-times'></i>",
-      }
-  });
+        let user_id = "{{ auth()->user()->id }}";
+        let ip_address = '127.0.0.1';
+        let socket_port = '8005';
+        let socket = io(ip_address + ':' + socket_port);
 
-  $('.add-costume').on('submit', function(event) {
-    event.preventDefault();
-    $('#successModal').modal('show');
-  });
-      
+        let friendId = 4; // Set friendId directly to 4
+
+        socket.on('connect', function() {
+            socket.emit('user_connected', user_id);
+        });
+
+        fetchConversation(friendId); // Fetch conversation on load
+
+        function fetchConversation(friendId) {
+            console.log("Fetching conversation for user ID:", friendId);
+            $.ajax({
+                url: "{{ route('message.conversation', '') }}/" + friendId,
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $messageWrapper.html(''); // Clear previous messages
+                        response.messages.forEach(message => {
+                            appendMessageToWrapper(message);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching conversation:', error);
+                }
+            });
+        }
+
+        $chatInput.keypress(function (e) {
+            let message = $(this).html();
+            if (e.which === 13 && !e.shiftKey) {
+                e.preventDefault();
+                $chatInput.html("");
+                sendMessage(message);
+                return false;
+            }
+        });
+
+        function sendMessage(message) {
+            let url = "{{ route('message.send-message') }}";
+            let token = "{{ csrf_token() }}";
+
+            if (!friendId) {
+                console.error('No friend selected for sending message');
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('message', message);
+            formData.append('_token', token);
+            formData.append('receiver_id', friendId);
+            
+            appendMessageToSender(message);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'JSON',
+                success: function(response) {
+                    if(response.success){
+                        console.log(response.data);
+                    } else {
+                        console.error('Error:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Submission error:', error);
+                }
+            });
+        }
+
+        function appendMessageToWrapper(message) {
+            let content = $('<div>').html(message.content).text();
+            let formattedContent = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+            let messageElement = '<div class="row message align-items-center mb-2">' +
+                '<div class="col-md-12 user-info" style="display: flex; align-items: center; margin-top: 16px; margin-left:16px;">\n' +
+                    '<div class="chat-image" style="margin-right: 10px">\n' +
+                        '<i class="fas fa-user"></i>\n' +
+                    '</div>\n' +
+                    '<div class="chat-name" style="font-weight: 600; display:flex; flex-direction: row;">\n' +
+                        message.sender_name +
+                        '<span class="small time" title="'+moment(message.created_at).format('YYYY-MM-DD HH:mm:ss')+'" style="color: grey; margin-left: 5px; padding-top: 3px;">\n' +
+                        moment(message.created_at).format('h:mm A') + '</span>\n' +
+                    '</div>\n' +
+                '</div>\n' +
+                '<div class="col-md-12 message-content">\n' +
+                    '<div class="message-text">\n' + formattedContent +
+                    '</div>\n' +
+                '</div>\n' +
+            '</div>';
+            
+            $messageWrapper.append(messageElement);
+        }
+
+        function appendMessageToSender(message) {
+            let name = '{{ $myInfo->name }}';
+            let content = $('<div>').html(message).text();
+            let formattedContent = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+            let messageElement = '<div class="row message align-items-center mb-2">' +
+                '<div class="col-md-12 user-info" style="display: flex; align-items: center; margin-top: 16px; margin-left:16px;">\n' +
+                    '<div class="chat-image" style="margin-right: 10px">\n' +
+                        '<i class="fas fa-user"></i>\n' +
+                    '</div>\n' +
+                    '<div class="chat-name" style="font-weight: 600; display:flex; flex-direction: row;">\n' +
+                        name +
+                        '<span class="small time" title="'+getCurrentDateTime()+'" style="color: grey; margin-left: 5px; padding-top: 3px;">\n' +
+                        getCurrentTime() + '</span>\n' +
+                    '</div>\n' +
+                '</div>\n' +
+                '<div class="col-md-12 message-content">\n' +
+                    '<div class="message-text">\n' + formattedContent +
+                    '</div>\n' +
+                '</div>\n' +
+            '</div>';
+            
+            $messageWrapper.append(messageElement);
+        }
+
+        function getCurrentDateTime() {
+            return moment().format('YYYY-MM-DD HH:mm:ss');
+        }
+
+        function getCurrentTime() {
+            return moment().format('h:mm A');
+        }
+
+        socket.on("private-channel:PrivateMessageEvent", function (message) {
+            appendMessageToWrapper(message);
+        });
+    });
 </script>
-@endsection

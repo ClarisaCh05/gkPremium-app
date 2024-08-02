@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use GuzzleHttp\Client;
 use App\Models\testimoni;
+use App\Models\category;
+use App\Models\theme;
+use App\Models\testimoni_kategori;
+use App\Models\testimoni_tema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
@@ -77,7 +82,7 @@ class testimoni_controller extends Controller
         $validated = $request->validate([
             'imageUrl' => 'required',
             'name' => 'required',
-            'description' => 'required'
+            'description' => 'required',
         ]);
 
         $testimoni = testimoni::create([
@@ -87,16 +92,31 @@ class testimoni_controller extends Controller
         ]);
 
         Log::info('Testimoni Object:', ['testimonies' => $testimoni]);
-        return response()->json(['success' => true]);
+        return response()->json(['id_testimoni' => $testimoni->id_testimoni]);
     }
 
     public function editTestimoni($id_testimoni)
     {
-        $testimoni = testimoni::select('testimoni.*')
+        $testimonies = Testimoni::select('testimoni.*')
             ->where('testimoni.id_testimoni', $id_testimoni)
             ->get();
-        
-        return view('admin_util/edit_testimoni', ['testimonies' => $testimoni]);
+
+        $categories = Category::select('category.*')
+            ->get();
+
+        $themes = Theme::select('theme.*')
+            ->get();
+
+        $testimoni_kategori = testimoni_kategori::select('testimoni_kategori.*')
+            ->where('testimoni_kategori.id_testimoni', $id_testimoni)
+            ->get();
+
+        $testimoni_tema = testimoni_tema::where('id_testimoni', $id_testimoni)->get();
+
+        Log::info('retrieved tema:', ['testimoni_tema' => $testimoni_tema]);
+
+        return view('admin_util.edit_testimoni', compact('testimonies', 
+            'categories', 'themes', 'testimoni_kategori', 'testimoni_tema'));
     }
 
     public function updateTestimoni(Request $request, $id_testimoni)
@@ -109,5 +129,95 @@ class testimoni_controller extends Controller
         ]);
 
         return response()->json(['message' => 'Testimoni updated successfully']);
+    }
+
+    public function deleteTestimoni($id_testimoni)
+    {
+        $testimoni = testimoni::find($id_testimoni);
+
+        if(!$testimoni) {
+            abort(404);
+        }
+
+        testimoni::where('id_testimoni', $id_testimoni)->delete();
+        
+        $testimoni->delete();
+
+        return response()->json(['success' => true]);
+
+    }
+
+    public function addTestimoniCategory(Request $request)
+    {
+        $costumeId = $request->input('id_testimoni');
+        $categories = $request->input('categories');
+    
+
+        if (!is_array($categories)) {
+            return response()->json(['error' => 'Invalid categories format'], 400);
+        }
+    
+        foreach ($categories as $categoryId) {
+            testimoni_kategori::create([
+                'id_testimoni' => $costumeId,
+                'id_kategori' => (int) $categoryId, // Ensure category ID is an integer
+            ]);
+        }
+    
+        return response()->json(['success' => true]);
+    }
+
+    public function addTestimonyTheme(Request $request)
+    {
+        $testimoniId = $request->input('id_testimoni');
+        $theme = $request->input('theme');
+
+        if (!is_array($theme)) {
+            return response()->json(['error' => 'Invalid themes format'], 400);
+        }
+
+        foreach ($theme as $themeId) {
+            testimoni_tema::create([
+                'id_testimoni' => $testimoniId,
+                'id_theme' => (int) $themeId, // Ensure category ID is an integer
+            ]);
+        }
+    
+        return response()->json(['success' => true]);
+    }
+
+    public function deleteCategory($ccId)
+    {
+        Log::info('Attempting to delete category with ID: ' . $ccId);
+
+        $testimoni_category = testimoni_kategori::where('id_testimoni_kategori', $ccId)->first();
+
+        if (!$testimoni_category) {
+            Log::error('Category not found with ID: ' . $ccId);
+            return response()->json(['error' => 'costume category not found'], 404);
+        }
+
+        try {
+            testimoni_kategori::where('id_testimoni_kategori', $ccId)->delete();
+            return response()->json(['success' => true]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function deleteTheme($ccId)
+    {
+        $testimoni_theme= testimoni_tema::where('id_testimoni_tema', $ccId)->first();
+
+        if (!$testimoni_theme) {
+            return response()->json(['error' => 'costume theme not found'], 404);
+        }
+
+        try {
+            testimoni_tema::where('id_testimoni_tema', $ccId)->delete();
+            return response()->json(['success' => true]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

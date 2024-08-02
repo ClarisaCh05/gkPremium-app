@@ -4,13 +4,40 @@
 <style>
     .chat-row {
         border: 1px solid lightgray;
-        padding: 16px
+        padding: 16px;
+    }
+
+    /* Set the max height and make the chat body scrollable */
+    .chat-body {
+        max-height: 400px; /* You can adjust the height as needed */
+        overflow-y: auto;
+    }
+
+    /* Optional: Add some styles to make the scrollbar look nice */
+    .chat-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chat-body::-webkit-scrollbar-thumb {
+        background-color: #888; 
+        border-radius: 4px;
+    }
+
+    .chat-body::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+    }
+
+    /* Ensure the chat input has some padding and is clearly separated from the chat body */
+    .chat-box {
+        border-top: 1px solid #ddd;
+        padding: 10px;
     }
 
     .chat-input {
         border: 1px solid black; 
         border-radius: 10px; 
         padding: 8px 10px;
+        min-height: 50px; /* Adjust as needed */
     }
 
     .chatInput {
@@ -60,15 +87,55 @@
         border-bottom: 1px solid lightgrey;
     }
 
+    .chat-box {
+        border-top: 1px solid lightgray;
+        padding: 8px;
+    }
+
+    .chat-input {
+        width: 100%;
+        min-height: 50px;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+     /* Media Queries for Responsiveness */
+     @media (max-width: 768px) {
+        .chat-row {
+            flex-direction: column;
+        }
+        .chat-section {
+            border-left: none;
+        }
+        .users {
+            display: none;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .chat-row {
+            padding: 8px;
+        }
+        .chat-header, .chat-name {
+            font-size: 0.875rem;
+        }
+    }
+
+    .toggle-user-list {
+        display: block;
+        margin-bottom: 16px;
+    }
+
 </style>
 @endsection
 @section('main')
     <div class="col-md-3">
         <h1>Chat</h1>
     </div>
+    <button class="btn btn-primary toggle-user-list" id="toggleUserList">Show Users</button>
     <div class="row chat-row">
-        <div class="col-md-3">
-            <div class="users">
+        <div class="col-md-3 users">
+            <div>
                 <h5 style="font-weight: 600;">Users</h5>
                 <ul class="list-group list-chat-item">
                     @if($users->count())
@@ -134,10 +201,19 @@
             let $chatBody = $(".chat-body");
             let $messageWrapper = $("#messageWrapper");
 
+            let $users = $('.users');
+            let $toggleUserList = $('#toggleUserList');
+
             $chatInput.on('focus', function () {
                 console.log('Chat input focused');
             });
+
+            $toggleUserList.on('click', function() {
+                $users.toggle();
+                $toggleUserList.text($users.is(':visible') ? 'Hide Users' : 'Show Users');
+            });
             
+            //socket connection
             let user_id = "{{ auth()->user()->id }}"
             let ip_address = '127.0.0.1';
             let socket_port = '8005';
@@ -279,7 +355,6 @@
                 
                 $messageWrapper.append(messageElement);
             }
-
 
             function appendMessageToSender(message) {
                 let name = '{{ $myInfo->name }}';

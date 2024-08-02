@@ -29,6 +29,16 @@
             background-color: green;
             border-radius: 50%;
             padding: 8px 12px 8px 12px;
+            text-decoration: none;
+        }
+        .like {
+            font-size: 24px;
+            color: white;
+            background-color: red;
+            border-radius: 50%;
+            padding: 8px 12px 8px 12px;
+            text-decoration: none;
+            margin-left: 16px;
         }
         .container {
             margin-bottom: 16px;
@@ -60,7 +70,7 @@
     <div class="container">
         <div class="row">
             <div class="col breadcrumbs-ctr">
-                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <nav style="--bs-breadcrumb-divider: '/';" aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('client.homepage') }}">Home</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('client.katalog') }}">Katalog</a></li>
@@ -105,16 +115,21 @@
             <div class="col-12 details">
                 @if ($costumes)
                     <h2 class="title">{{ $costumes->name }}</h2>
-                    <p class="price">{{ $costumes->price }}</p>
-                    <p class="size">{{ $costumes->size }}</p>
+                    <p class="price">@price($costumes->price)</p>
+                    <p class="size">@sizeLabel($costumes->size)</p>
                     <div class="col">
                         <a href="" class="chat" id="chatLink" data-costume-id="{{ $costumes->id_costume }}" data-costume-interest="{{ $costumes->interest }}">
                             Chat
                             <i class="fas fa-comment"></i>
                         </a>
-                        <a href="#" class="whatsApp">
+                        <a href="https://wa.me/6285215003507" class="whatsApp">
                             <i class="fa-brands fa-whatsapp"></i>
                         </a>
+                        <a href="#" class="like" id="likeButton" data-costume-name="{{ $costumes->name }}" 
+                            data-costume-price="{{ $costumes->price }}" 
+                            data-costume-image="{{ $costumes->images[0]->imageUrl ?? '' }}">
+                            <i class="fas fa-heart"></i> 
+                        </a>                       
                     </div>
                     <hr>
                     <p class="description">{{ $costumes->description }}</p>
@@ -150,9 +165,78 @@
         document.addEventListener('DOMContentLoaded', function () {
             console.log("DOM fully loaded and parsed");
 
-            // Select all elements with the class 'chatLink'
             let chatLinks = document.querySelectorAll('#chatLink');
             console.log(`Found ${chatLinks.length} chatLink elements`);
+
+            const likeButton = document.getElementById('likeButton');
+            const likedCostumesDropdown = document.getElementById('likedCostumesDropdown');
+
+            if (likeButton) {
+                likeButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log("click");
+
+                    const costumeName = this.getAttribute('data-costume-name');
+                    const costumePrice = this.getAttribute('data-costume-price');
+                    const costumeImage = this.getAttribute('data-costume-image');
+                    console.log("data:", costumeName, costumePrice, costumeImage);
+
+                    const likedCostumes = JSON.parse(localStorage.getItem('likedCostumes')) || [];
+                    console.log("likedCostumes:", likedCostumes);
+
+                    const existingCostume = likedCostumes.find(costume => costume.name === costumeName);
+                    console.log("existing costume:", existingCostume);
+
+                    if (!existingCostume) {
+                        likedCostumes.push({ name: costumeName, price: costumePrice, image: costumeImage });
+                        localStorage.setItem('likedCostumes', JSON.stringify(likedCostumes));
+                        console.log("likedCostumes 2:", likedCostumes);
+                        renderLikedCostumes();
+                    }
+                });
+            }
+
+            function renderLikedCostumes() {
+                const likedCostumes = JSON.parse(localStorage.getItem('likedCostumes')) || [];
+                console.log("likedCostumes render:", likedCostumes);
+                likedCostumesDropdown.innerHTML = '';
+
+                likedCostumes.forEach(costume => {
+                    const costumeItem = document.createElement('li');
+                    costumeItem.classList.add('row');
+                    costumeItem.innerHTML = `
+                        <div class="col-sm-3 imageCart">
+                            <img src="${costume.image}" alt="" style="height: 50px;">
+                        </div>
+                        <span class="col-sm-6 item">
+                            <span class="item-left">
+                                <img src="${costume.image}" alt="" style="height: 50px;">
+                                <span class="item-info">
+                                    <span style="font-weight: bold;">${costume.name}</span>
+                                    <br>
+                                    <span>${costume.price}</span>
+                                </span>
+                            </span>
+                        </span>
+                        <div class="col-sm-2 item-right">
+                            <button class="btn btn-xs btn-danger remove-like" data-costume-name="${costume.name}">x</button>
+                        </div>
+                    `;
+                    likedCostumesDropdown.appendChild(costumeItem);
+                });
+
+                document.querySelectorAll('.remove-like').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const costumeName = this.getAttribute('data-costume-name');
+                        const likedCostumes = JSON.parse(localStorage.getItem('likedCostumes')) || [];
+                        const updatedCostumes = likedCostumes.filter(costume => costume.name !== costumeName);
+                        localStorage.setItem('likedCostumes', JSON.stringify(updatedCostumes));
+                        renderLikedCostumes();
+                    });
+                });
+            }
+
+            renderLikedCostumes();
 
             chatLinks.forEach(chatLink => {
                 chatLink.addEventListener('click', function(event) {
@@ -171,8 +255,11 @@
                     interestInt++;
                     console.log("New Interest:", interestInt);
 
+                    const url = '{{ route("client.updateInterest", ":id_costume") }}'.replace(':id_costume', costumeId);
+                    console.log("Generated URL:", url);
+
                     $.ajax({
-                        url: '{{ route("client.updateInterest", ":id_costume") }}'.replace(':id_costume', costumeId),
+                        url: url,
                         method: 'POST',
                         data: {
                             id_costume: costumeId,
@@ -195,7 +282,8 @@
                     .then(data => {
                         if (data.authenticated) {
                             console.log("User authenticated");
-                            window.location.href = `/conversation/${data.userId}`;
+                            let currentUrl = window.location.href;
+                            window.location.href = `/conversation/${data.userId}?previous_url=${encodeURIComponent(currentUrl)}`;
                         } else {
                             console.log("User not authenticated, redirecting to login");
                             window.location.href = '{{ route('login') }}';

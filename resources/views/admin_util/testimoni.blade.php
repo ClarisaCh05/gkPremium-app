@@ -77,5 +77,34 @@
                 ],
             })
         })
+
+        $('#table').on('click', '.delete', function(e) {
+            e.preventDefault();
+
+            if (!confirm('Are you sure?')) {
+                return;
+            }
+
+            var testimoni_id = $(this).data('id');
+
+            $.ajax({
+                url: '{{ route("testimoni.deleteTestimoni", ":id_testimoni") }}'.replace(':id_testimoni', testimoni_id),
+                method: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Testimoni deleted successfully');
+                        table.ajax.reload();
+                    } else {
+                        alert('Failed to delete testimoni');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error: ' + error);
+                }
+            })
+        })
     </script>
 @endsection

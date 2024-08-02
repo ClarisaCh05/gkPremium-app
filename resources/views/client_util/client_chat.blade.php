@@ -8,10 +8,37 @@
         padding: 16px
     }
 
+    /* Set the max height and make the chat body scrollable */
+    .chat-body {
+        max-height: 400px; /* You can adjust the height as needed */
+        overflow-y: auto;
+    }
+
+    /* Optional: Add some styles to make the scrollbar look nice */
+    .chat-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chat-body::-webkit-scrollbar-thumb {
+        background-color: #888; 
+        border-radius: 4px;
+    }
+
+    .chat-body::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
+    }
+
+    /* Ensure the chat input has some padding and is clearly separated from the chat body */
+    .chat-box {
+        border-top: 1px solid #ddd;
+        padding: 10px;
+    }
+
     .chat-input {
         border: 1px solid black; 
         border-radius: 10px; 
         padding: 8px 10px;
+        min-height: 50px; /* Adjust as needed */
     }
 
     .chatInput {
@@ -135,7 +162,7 @@
                                 </div>
                                 <div class="col-md-12 message-content">
                                     <div class="message-text">
-                                        {{ $message['content'] }}
+                                        {!! $message['content'] !!}
                                     </div>
                                 </div>
                             </div>
@@ -163,6 +190,14 @@
                 console.log('Chat input focused');
             });
             
+            // Get previous_url from the query string and set it as the initial chat input value
+            let urlParams = new URLSearchParams(window.location.search);
+            let previousUrl = urlParams.get('previous_url');
+
+            if (previousUrl) {
+                $chatInput.html(`<a href="${previousUrl}" target="_blank">${previousUrl}</a>`);
+            }
+
             let user_id = "{{ auth()->user()->id }}"
             let ip_address = '127.0.0.1';
             let socket_port = '8005';
@@ -173,31 +208,6 @@
             socket.on('connect', function() {
                 socket.emit('user_connected', user_id);
             });
-
-            fetchConversation(friendId); // Fetch conversation on load
-
-            function fetchConversation(friendId) {
-                console.log("Fetching conversation for user ID:", friendId);
-                $.ajax({
-                    url: "{{ route('message.conversation', '') }}/" + friendId,
-                    type: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $chatName.text(response.friendInfo.name);
-                            $messageWrapper.html(''); // Clear previous messages
-                            response.messages.forEach(message => {
-                                appendMessageToWrapper(message);
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching conversation:', error);
-                    }
-                });
-            }
 
             console.log("User ID:", user_id);
 
@@ -253,47 +263,60 @@
             }
 
             function appendMessageToWrapper(message) {
-                let messageElement = '<div class="row message align-items-center mb-2">' +
-                    '<div class="col-md-12 user-info" style="display: flex; align-items: center; margin-top: 16px; margin-left:16px;">\n' +
-                        '<div class="chat-image" style="margin-right: 10px">\n' +
-                            '<i class="fas fa-user"></i>\n' +
-                        '</div>\n' +
-                        '<div class="chat-name" style="font-weight: 600; display:flex; flex-direction: row;">\n' +
-                            message.sender_name +
-                            '<span class="small time" title="'+moment(message.created_at).format('YYYY-MM-DD HH:mm:ss')+'" style="color: grey; margin-left: 5px; padding-top: 3px;">\n' +
-                            moment(message.created_at).format('h:mm A') + '</span>\n' +
-                        '</div>\n' +
-                    '</div>\n' +
-                    '<div class="col-md-12 message-content">\n' +
-                        '<div class="message-text">\n' + message.content +
-                        '</div>\n' +
-                    '</div>\n' +
-                '</div>';
-                
+                console.log("text:", message);
+                let messageElement = `<div class="row message align-items-center mb-2">
+                    <div class="col-md-12 user-info" style="display: flex; align-items: center; margin-top: 16px; margin-left:16px;">
+                        <div class="chat-image" style="margin-right: 10px">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="chat-name" style="font-weight: 600; display:flex; flex-direction: row;">
+                            ${escapeHtml(message.sender_name)}
+                            <span class="small time" title="${moment(message.created_at).format('YYYY-MM-DD HH:mm:ss')}" style="color: grey; margin-left: 5px; padding-top: 3px;">
+                                ${moment(message.created_at).format('h:mm A')}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-12 message-content">
+                        <div class="message-text">${escapeHtml(message.content)}</div>
+                    </div>
+                </div>`;
+
                 $messageWrapper.append(messageElement);
             }
 
 
             function appendMessageToSender(message) {
+                console.log("text:", message);
                 let name = '{{ $myInfo->name }}';
-                let messageElement = '<div class="row message align-items-center mb-2">' +
-                    '<div class="col-md-12 user-info" style="display: flex; align-items: center; margin-top: 16px; margin-left:16px;">\n' +
-                        '<div class="chat-image" style="margin-right: 10px">\n' +
-                            '<i class="fas fa-user"></i>\n' +
-                        '</div>\n' +
-                        '<div class="chat-name" style="font-weight: 600; display:flex; flex-direction: row;">\n' +
-                            name +
-                            '<span class="small time" title="'+getCurrentDateTime()+'" style="color: grey; margin-left: 5px; padding-top: 3px;">\n' +
-                            getCurrentTime() + '</span>\n' +
-                        '</div>\n' +
-                    '</div>\n' +
-                    '<div class="col-md-12 message-content">\n' +
-                        '<div class="message-text">\n' + message +
-                        '</div>\n' +
-                    '</div>\n' +
-                '</div>';
-                
-                $messageWrapper.append(messageElement);
+                    let messageElement = `<div class="row message align-items-center mb-2">
+                        <div class="col-md-12 user-info" style="display: flex; align-items: center; margin-top: 16px; margin-left:16px;">
+                            <div class="chat-image" style="margin-right: 10px">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="chat-name" style="font-weight: 600; display:flex; flex-direction: row;">
+                                ${escapeHtml(name)}
+                                <span class="small time" title="${getCurrentDateTime()}" style="color: grey; margin-left: 5px; padding-top: 3px;">
+                                    ${getCurrentTime()}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-12 message-content">
+                            <div class="message-text">${escapeHtml(message)}</div>
+                        </div>
+                    </div>`;
+
+                    $messageWrapper.append(messageElement);
+            }
+
+            function escapeHtml(text) {
+                let map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
             }
 
             function getCurrentDateTime() {
@@ -305,6 +328,7 @@
             }
 
             socket.on("private-channel:PrivateMessageEvent", function (message) {
+                console.log("text:", message);
                 appendMessageToWrapper(message);
             });
         });

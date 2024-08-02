@@ -3,16 +3,21 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\color;
 use App\Models\image;
+use App\Models\theme;
 use GuzzleHttp\Client;
 use App\Models\costume;
 use App\Models\category;
 use Illuminate\Http\Request;
 use App\Models\costume_category;
+use App\Models\costume_color;
+use App\Models\costume_theme;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -27,37 +32,80 @@ class costume_controller extends Controller
     public function getCompleteCostume(Request $request)
     {
         if ($request->ajax()) {
-            $data = costume::select('costume.*', DB::raw('GROUP_CONCAT(DISTINCT image.imageUrl SEPARATOR ",") AS images'), DB::raw('GROUP_CONCAT(DISTINCT category.category SEPARATOR ", ") AS categories'))
+            $today = Carbon::today();
+
+            // Fetch costumes and join rented data
+            $data = costume::select('costume.*', DB::raw('GROUP_CONCAT(DISTINCT image.imageUrl SEPARATOR ",") AS images'), DB::raw('GROUP_CONCAT(DISTINCT category.category SEPARATOR ", ") AS categories'), 'rented.ended_at as rented_ended_at')
                 ->join('costume_category', 'costume.id_costume', '=', 'costume_category.id_costume')
                 ->join('category', 'costume_category.id_category', '=', 'category.id_category')
                 ->join('image', 'image.id_costume', '=', 'costume.id_costume')
-                ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest')
+                ->leftJoin('rented', function ($join) use ($today) {
+                    $join->on('costume.id_costume', '=', 'rented.id_costume')
+                        ->where('rented.ended_at', '<', $today);
+                })
+                ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest', 'costume.status', 'rented_ended_at')
                 ->orderBy('costume.id_costume', 'asc')
                 ->get();
 
+            // Check ended date and update status
+            foreach ($data as $costume) {
+                if ($costume->rented_ended_at && $costume->rented_ended_at < $today && $costume->status == 2) {
+                    $costume->status = 0; // Revert status to Ready
+                    $costume->save();
+                }
+            }
+
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('status', function ($row) {
+                    $statuses = [
+                        0 => 'Ready',
+                        1 => 'Belum Ready',
+                        2 => 'Dipinjam',
+                        3 => 'Perbaikan / Cuci',
+                        4 => 'Tidak ada'
+                    ];
+
+                    $statusBtn = '';
+                    foreach ($statuses as $value => $label) {
+                        $checked = $row->status == $value ? 'checked' : '';
+                        $statusBtn .= '
+                            <div class="form-check-inline">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="status'.$row->id_costume.'" value="'.$value.'" id="status'.$value.'_'.$row->id_costume.'" '.$checked.'>
+                                    <label class="form-check-label" for="status'.$value.'_'.$row->id_costume.'">
+                                        '.$label.'
+                                    </label>
+                                </div>
+                            </div>
+                        ';
+                    }
+                    return '<div data-status="'.$row->status.'">' . $statusBtn . '</div>';
+                })
                 ->addColumn('action', function ($row) {
                     $actionBtn = '
                         <div class="d-flex">
                             <a href="/kostum/edit_kostum/'.$row->id_costume.'" class="edit btn btn-success btn-sm btn-icon rounded-circle mr-1 mb-1" style="margin-bottom: 0.25rem;">
                                 <i class="fas fa-edit"></i>
                             </a> 
-                            <a href="javascript:void(0)" data-id="'.$row->id_costume.'" class="delete btn btn-danger btn-sm btn-icon rounded-circle mr-1 mb-1">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
                         </div>';
                     return $actionBtn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['status', 'action'])
                 ->make(true);
         }
         return view('admin_util.kostum');
     }
 
-
     public function getAddCostume() {
-        return view('admin_util/add_kostum');
+        $themes = theme::select('theme.*')->get();
+
+        $colors = color::select('color.*')->get();
+
+        return view('admin_util/add_kostum', [
+            'themes' => $themes,
+            'colors' => $colors,
+        ]);
     }
 
     public function addCostume(Request $request) {
@@ -117,10 +165,26 @@ class costume_controller extends Controller
             ->where('costume_category.id_costume', $id_costume)
             ->get();
 
+        $costume_color = costume_color::select('costume_color.*')
+            ->where('costume_color.id_costume', $id_costume)
+            ->get();
+
+        $costume_theme = costume_theme::select('costume_theme.*')
+            ->where('costume_theme.id_costume', $id_costume)
+            ->get();
+
         $categories = category::select('category.*')
             ->get();
 
-        return view('admin_util/edit_kostum', compact('costume', 'images', 'costume_category', 'categories'));
+        $colors = color::select('color.*')
+            ->get();
+        
+        $themes = theme::select('theme.*')
+            ->get();
+
+        return view('admin_util/edit_kostum', compact('costume', 'images', 
+            'costume_category', 'categories', 'costume_color', 'costume_theme',
+            'colors', 'themes'));
     }
 
     public function updateCostume(Request $request, $id_costume)
@@ -143,6 +207,23 @@ class costume_controller extends Controller
         ]);
 
         return response()->json(['message' => 'Costume updated successfully']);
+    }
+
+    public function updateStatus(Request $request, $id_costume)
+    {
+        $validated = $request->validate([
+            'status' => 'required|integer',
+        ]);
+
+        $costume = costume::where('id_costume', $id_costume)->first();
+        if ($costume) {
+            $costume->update([
+                'status' => $validated['status'],
+            ]);
+            return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Costume not found']);
     }
 
     public function uploadImage(Request $request)
@@ -218,6 +299,44 @@ class costume_controller extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function addColor(Request $request)
+    {
+        $costumeId = $request->input('id_costume');
+        $color = $request->input('color');
+
+        if (!is_array($color)) {
+            return response()->json(['error' => 'Invalid categories format'], 400);
+        }
+
+        foreach ($color as $colorId) {
+            costume_color::create([
+                'id_costume' => $costumeId,
+                'id_color' => (int) $colorId, // Ensure category ID is an integer
+            ]);
+        }
+    
+        return response()->json(['success' => true]);
+    }
+
+    public function addTheme(Request $request)
+    {
+        $costumeId = $request->input('id_costume');
+        $theme = $request->input('theme');
+
+        if (!is_array($theme)) {
+            return response()->json(['error' => 'Invalid themes format'], 400);
+        }
+
+        foreach ($theme as $themeId) {
+            costume_theme::create([
+                'id_costume' => $costumeId,
+                'id_theme' => (int) $themeId, // Ensure category ID is an integer
+            ]);
+        }
+    
+        return response()->json(['success' => true]);
+    }
+
     public function deleteCategory($ccId)
     {
         $costume_category = costume_category::where('id_costume_category', $ccId)->first();
@@ -233,4 +352,37 @@ class costume_controller extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function deleteColor($ccId)
+    {
+        $costume_color= costume_color::where('id_costume_color', $ccId)->first();
+
+        if (!$costume_color) {
+            return response()->json(['error' => 'costume color not found'], 404);
+        }
+
+        try {
+            costume_color::where('id_costume_color', $ccId)->delete();
+            return response()->json(['success' => true]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }    
+
+    public function deleteTheme($ccId)
+    {
+        $costume_theme= costume_theme::where('id_costume_theme', $ccId)->first();
+
+        if (!$costume_theme) {
+            return response()->json(['error' => 'costume theme not found'], 404);
+        }
+
+        try {
+            costume_theme::where('id_costume_theme', $ccId)->delete();
+            return response()->json(['success' => true]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
 }

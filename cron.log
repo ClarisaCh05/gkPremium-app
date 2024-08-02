@@ -1,0 +1,21 @@
+events.js:291
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::8005
+    at Server.setupListenHandle [as _listen2] (net.js:1310:16)
+    at listenInCluster (net.js:1358:12)
+    at Server.listen (net.js:1444:7)
+    at file:///mnt/d/gkPremium-app/server.js:28:6
+    at ModuleJob.run (internal/modules/esm/module_job.js:145:37)
+    at async Loader.import (internal/modules/esm/loader.js:182:24)
+    at async Object.loadESM (internal/process/esm_loader.js:68:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (net.js:1337:8)
+    at processTicksAndRejections (internal/process/task_queues.js:84:21) {
+  code: 'EADDRINUSE',
+  errno: 'EADDRINUSE',
+  syscall: 'listen',
+  address: '::',
+  port: 8005
+}

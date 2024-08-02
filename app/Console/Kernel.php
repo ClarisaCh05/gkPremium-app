@@ -20,6 +20,8 @@ class Kernel extends ConsoleKernel
         ->onFailure(function () {
             Log::error('Views update command failed to run');
         });
+
+        $schedule->command('costume:update-status')->daily();
     }
 
     /**

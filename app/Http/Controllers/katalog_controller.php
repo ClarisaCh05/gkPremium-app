@@ -19,7 +19,7 @@ class katalog_controller extends Controller
             ->join('costume_category', 'costume.id_costume', '=', 'costume_category.id_costume')
             ->join('category', 'costume_category.id_category', '=', 'category.id_category')
             ->join('image', 'image.id_costume', '=', 'costume.id_costume')
-            ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest','image.imageUrl')                
+            ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest', 'costume.status','image.imageUrl')                
             ->orderBy('costume.id_costume', 'asc')
             ->paginate(12);
 

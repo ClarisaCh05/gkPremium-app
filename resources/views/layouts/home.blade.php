@@ -49,6 +49,7 @@
             display: flex;
             align-items: center;
           }
+
           .navbar .search input {
               margin-left: 10px;
               flex-grow: 1;
@@ -65,10 +66,7 @@
           .nav-link {
             color: black !important;
             margin: 0 16px 0 16px;
-            font-weight: bold;
           }
-
-          box-shadow: 2px 6px 8px rgba(22, 22, 26, 0.18);
 
           @media (max-width: 992px) {
               .navbar-brand {
@@ -81,6 +79,74 @@
                   display: none;
               }
           }
+
+          footer {
+            margin-top: 64px;
+          }
+
+          footer .container {
+            margin-bottom: 64px;
+          }
+
+          #search-bar input {
+            width: 50%
+          }
+
+          .breadcrumb-item a {
+            color: black;
+            text-decoration: none;
+          }
+
+          .chat-btm {
+            position: fixed;
+            bottom: 20px;
+            right: -77rem;
+            z-index: 1000;
+          }
+
+          #chatBtn {
+            background-color: black;
+          }
+
+          .dropdown-menu {
+            width: 25rem;
+          }
+
+          .chat-name {
+              margin: 8px 0 8px 0;
+              font-weight: 600; 
+              display:flex; 
+              flex-direction: row;
+          }
+
+          .chat-header {
+              margin-bottom: 8px;
+          }
+
+          .chat-image {
+              margin-right: 10px;
+          }
+
+          .user-info {
+              display: flex; 
+              align-items: center; 
+              margin-top: 16px; 
+              margin-left:16px;
+          }
+
+          .small.time {
+              color: grey;
+              margin-left: 5px; 
+              padding-top: 3px;
+          }
+
+          .chat-body {
+            height: 13.5rem;
+          }
+
+          .item-right {
+            padding-top: 4px;
+          }
         </style>
         @yield('css')
     </head>
@@ -90,21 +156,22 @@
               <div class="container-fluid">
                   <a class="navbar-brand" href="#"><img src="/img/logo-gk.png" alt="Logo" style="height: 40px;"></a>
                   <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                    <form class="d-flex search" action="{{ route('client.katalogSearch') }}" method="GET">
+                    <form class="d-flex search" action="{{ route('client.katalogSearch') }}" id="search-bar" method="GET">
                       <i class="fas fa-magnifying-glass icon"></i>
                       <input type="text" class="form-control main-search" name="search" placeholder="search" value="{{ request('search') }}">
                       <input type="hidden" name="category" value="{{ request('category') }}">
-                  </form>                                   
+
+                    </form>                                   
                       <ul class="navbar-nav ms-auto d-none d-lg-flex">
                           @guest
                               @if (Route::has('login'))
-                                  <li class="nav-item">
+                                  <li class="nav-item" style="font-weight: bold;">
                                       <a class="nav-link" href="{{ route('login') }}" @click.prevent="showLogin">{{ __('Login') }}</a>
                                   </li>
                               @endif
 
                               @if (Route::has('register'))
-                                  <li class="nav-item">
+                                  <li class="nav-item" style="font-weight: bold;">
                                       <a class="nav-link" href="{{ route('register') }}" @click.prevent="showRegister">{{ __('Register') }}</a>
                                   </li>
                               @endif
@@ -126,8 +193,21 @@
                                   </div>
                               </li>
                           @endguest
-                          <li class="nav-item chat">
+                          {{-- <li class="nav-item chat">
                               <a class="nav-link" href="#" id="chatLink"><i class="fas fa-comment-dots"></i></a>
+                          </li> --}}
+                          <li class="nav-item brand">
+                            <div class="btn-group">
+                              {{-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-heart"></i>
+                              </button> --}}
+                              <a class="dropdown-toggle" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: black;">
+                                <i class="fas fa-heart" style="padding-top: 13px;"></i>
+                              </a>
+                              <ul class="dropdown-menu dropdown-menu-end px-4" role="menu" style="width: 20rem;" id="likedCostumesDropdown">
+                                
+                              </ul>
+                            </div>
                           </li>
                           <li class="nav-item brand">
                               <a class="nav-link" href="https://wa.me/6285215003507"><i class="fa-brands fa-whatsapp"></i></a>
@@ -162,19 +242,19 @@
                       <a class="nav-link" href="{{ route('client.getClientTestimoni') }}">Testimoni</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="{{ route('client.ketentuanSewa') }}">Ketentuan Sewa</a>
+                      <a class="nav-link" href="{{ route('client.ketentuanSewa') }}">Ketentuan</a>
                     </li>
                   </ul>
                   <ul class="navbar-nav ms-auto d-lg-none">
                       @guest
                           @if (Route::has('login'))
-                              <li class="nav-item">
+                              <li class="nav-item" style="font-weight: bold;">
                                   <a class="nav-link" href="{{ route('login') }}" @click.prevent="showLogin">{{ __('Login') }}</a>
                               </li>
                           @endif
 
                           @if (Route::has('register'))
-                              <li class="nav-item">
+                              <li class="nav-item" style="font-weight: bold;">
                                   <a class="nav-link" href="{{ route('register') }}" @click.prevent="showRegister">{{ __('Register') }}</a>
                               </li>
                           @endif
@@ -196,8 +276,21 @@
                               </div>
                           </li>
                       @endguest
-                      <li class="nav-item chat">
+                      {{-- <li class="nav-item chat">
                           <a class="nav-link" href="#" id="chatLink"><i class="fas fa-comment-dots"></i>Chat</a>
+                      </li> --}}
+                      <li class="nav-item brand">
+                        <div class="btn-group">
+                          {{-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-heart"></i>
+                          </button> --}}
+                          <a class="dropdown-toggle" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: black;">
+                            <i class="fas fa-heart" style="padding-top: 13px;"></i>
+                          </a>
+                          <ul class="dropdown-menu dropdown-menu-end px-4" role="menu" style="width: 20rem;" id="likedCostumesDropdown">
+                            
+                          </ul>
+                        </div>
                       </li>
                       <li class="nav-item brand">
                           <a class="nav-link" href="https://wa.me/6285215003507"><i class="fa-brands fa-whatsapp"></i>WhatsApp</a>
@@ -223,6 +316,41 @@
           </header>
         <main>
           @yield('main')
+          <div class="container chat-btm">
+            <div class="btn-group dropup">
+              <button type="button" id="chatBtn" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-comment"></i>
+              </button>
+              <div class="dropdown-menu px-4 py-3">
+                <div class="chat-header" id="chatHeader">
+                  <div class="chat-name" style="font-weight: 600; margin-left:8px;">
+                    Gk_Admin
+                  </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="chat-body">
+                  <div class="user-info">
+                    <div class="chat-image">
+                      <i class="fas fa-user"></i>
+                    </div>
+                    <div class="chat-name">
+                      Gk_Admin
+                      <span class="small time">
+                        10.00 AM
+                      </span>
+                    </div>
+                  </div>
+                  <div class="message-context">
+                    <p>We're Sorry but the chat isn't available yet.</p>
+                  </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="chat-box">
+                  <input class="form-control chat-input" id="chatInput"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </main>
         <footer>
           <div class="container">
@@ -237,7 +365,9 @@
                   </div>
                   <p class="main-info">Gudang Kostum</p>
                   <p>Yakaya Superindo Lt.2 Rungkut Mapan Utara FA 01 Surabaya</p>
-                  <a href="#">Google Map</a>
+                  <a href="https://maps.app.goo.gl/k6XC24tRdPvmrDss7" style="color: white; text-decoration: none;">
+                    <span style="color: white"><i class="fas fa-map-marked-alt"></i></span>
+                    Google Map</a>
                 </div>
               </div>
               <div class="col">
@@ -255,7 +385,7 @@
                   <div class="title">
                     <i class="fa-solid fa-phone"></i><span>Contacts</span>
                   </div>
-                  <a href="#">
+                  <a href="https://wa.me/6285215003507">
                     <i class="fa-brands fa-whatsapp"></i>
                     <span>0852-1500-3507</span>
                   </a>
@@ -280,7 +410,7 @@
                     <span>Shopee</span>
                   </a>
                   <br>
-                  <a href="https://shopee.co.id/gudangkostum?smtt=0.0.9" class="lazada">
+                  <a href="https://www.lazada.co.id/?spm=a2o4j.pdp_revamp.header.dhome.2bf617f8m9cqKX#?" class="lazada">
                     <img src="/img/icons8-lazada.svg">
                     <span>Lazada</span>
                   </a>
@@ -299,10 +429,10 @@
             console.log('Hello world');
 
             //chat
-            document.getElementById('chatLink').addEventListener('click', function(event) {
-                event.preventDefault();
-                checkAuthentication();
-            });
+            // document.getElementById('chatLink').addEventListener('click', function(event) {
+            //    event.preventDefault();
+            //    checkAuthentication();
+            // });
 
             function checkAuthentication() {
               fetch('/check-auth')
@@ -328,6 +458,49 @@
                     window.location.href = url;
                 });
             });
+
+            function renderLikedCostumes() {
+                const likedCostumes = JSON.parse(localStorage.getItem('likedCostumes')) || [];
+                console.log("likedCostumes:", likedCostumes);
+                const likedCostumesDropdown = document.getElementById('likedCostumesDropdown');
+                likedCostumesDropdown.innerHTML = '';
+                console.log("liked", likedCostumesDropdown);
+
+                likedCostumes.forEach(costume => {
+                    const costumeItem = document.createElement('li');
+                    costumeItem.classList.add('row');
+                    costumeItem.innerHTML = `
+                        <div class="col-sm-3 imageCart">
+                            <img src="${costume.image}" alt="" style="height: 50px;">
+                        </div>
+                        <span class="col-sm-6 item">
+                            <span class="item-left">
+                                <span class="item-info">
+                                    <span style="font-weight: bold;">${costume.name}</span>
+                                    <br>
+                                    <span>${costume.price}</span>
+                                </span>
+                            </span>
+                        </span>
+                        <div class="col-sm-2 item-right">
+                            <button class="btn btn-xs btn-danger remove-like" data-costume-name="${costume.name}">x</button>
+                        </div>
+                    `;
+                    likedCostumesDropdown.appendChild(costumeItem);
+                });
+                
+                document.querySelectorAll('.remove-like').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const costumeName = this.getAttribute('data-costume-name');
+                        const likedCostumes = JSON.parse(localStorage.getItem('likedCostumes')) || [];
+                        const updatedCostumes = likedCostumes.filter(costume => costume.name !== costumeName);
+                        localStorage.setItem('likedCostumes', JSON.stringify(updatedCostumes));
+                        renderLikedCostumes();
+                    });
+                });
+            }
+
+            renderLikedCostumes();
           })
       </script>
     </body>

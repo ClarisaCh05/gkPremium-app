@@ -26,17 +26,20 @@ use App\Http\Controllers\katalogClientController;
 |
 */
 
+
 Route::get('/', function (homePageController $controller) {
     $katalogs = $controller->getCostume();
     $promos = $controller->getPromo();
     $brideStation = $controller->getBrideStation();
     $topCostume = $controller->getTopViewed(); 
+    $topCategories = $controller->getTopCategories();
 
     return view('caraousel', [
         'katalogs' => $katalogs,
         'promos' => $promos,
         'brideStation' => $brideStation,
-        'topCostume' => $topCostume
+        'topCostume' => $topCostume,
+        'topCategories' => $topCategories, // Pass top categories to the view
     ]);
 })->name('client.homepage');
 
@@ -47,14 +50,16 @@ Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('client/search', [homePageController::class, 'searchCostume'])->name('client.katalogSearch');
+
 Route::get('client/katalog', [katalogClientController::class, 'getCostume'])->name('client.katalog');
 Route::get('client/filter', [katalogClientController::class, 'filterCostume'])->name('client.filter');
-// Route::post('client/updateView/{id_costume}', [katalogClientController::class, 'updateView'])->name('client.Updateview');
+Route::post('client/updateView/{id_costume}', [katalogClientController::class, 'updateView'])->name('client.Updateview');
 
 Route::get('client/costumeDetail/{id_costume}', [costumeDetailController::class, 'getCostumeDetails'])->name('client.costumeDetail');
 Route::post('client/updateInterest/{id_costume}', [costumeDetailController::class, 'updateInterest'])->name('client.updateInterest');
 
 Route::get('client/getClientTestimoni', [client_testimoni::class, 'getClientTestimoni'])->name('client.getClientTestimoni');
+Route::get('client/testimoniFilter', [client_testimoni::class, 'filterTestimony'])->name('client.getFilterTestimoni');
 
 Route::get('client/ketentuan-sewa', function() {return view('client_util/ketentuan_sewa');})->name('client.ketentuanSewa');
 Route::get('client/siapa-kami', function() {return view('client_util/siapa_kami');})->name('client.siapaKami');
@@ -84,6 +89,11 @@ Route::group(['middleware' => ['auth', 'admin']], function() {
     Route::get('/costumes/stats', [RentController::class, 'getRentalStats'])->name('rentals.stats');
     Route::get('/costumes/top-categories', [RentController::class, 'getTopCategories'])->name('costumes.top-categories');
     Route::get('/costume/topInterest', [RentController::class, 'getTopInterestCostumes'])->name('costumes.topInterest');
+    Route::get('/costume/frequentlyAsked', [RentController::class, 'getFrequentlyAskedCostumes'])->name('costumes.frequentlyAsked');
+    Route::get('costume/frequentlyViewed', [RentController::class, 'getFrequentlyViewedCostumes'])->name('costumes.frequentlyViewed');
+    Route::get('/costumes/searchHistory', [RentController::class, 'getSearchHistoryData'])->name('searchHistory.getSearchHistoryData');
+    Route::get('/autocomplete-costumes', [RentController::class, 'autocomplete'])->name('autocomplete.costumes');
+    Route::post('/katalog/updateStatus/{id_costume}', [RentController::class, 'updateStatus'])->name('katalog.updateStatus');
 
     Route::get('/testimoni', function () {return view('admin_util/testimoni');})->name('testimoni');
     Route::prefix('testimoni')->group(function () {
@@ -91,21 +101,28 @@ Route::group(['middleware' => ['auth', 'admin']], function() {
         Route::get('/tambahTestimoni', [testimoni_controller::class, 'index'])->name('testimoni.tambahTestimoni');
         Route::post('/uploadImage', [testimoni_controller::class, 'uploadImage'])->name('testimoni.uploadImage');
         Route::post('/addTestimoni', [testimoni_controller::class, 'addTestimoni'])->name('testimoni.addTestimoni');
+        Route::post('/addCategoryTestimoni', [testimoni_controller::class, 'addTestimoniCategory'])->name('testimoni.addTestimoniCategory');
+        Route::post('/addThemeTestimoni', [testimoni_controller::class, 'addTestimonyTheme'])->name('testimoni.addTestimoniTheme');
         Route::get('/editTestimoni/{id_testimoni}', [testimoni_controller::class, 'editTestimoni'])->name('testimoni.editTestimoni');
         Route::post('/updateTestimoni/{id_testimoni}', [testimoni_controller::class, 'updateTestimoni'])->name('testimoni.updateTestimoni');
+        Route::delete('/deleteTestimoni/{id_testimoni}', [testimoni_controller::class, 'deleteTestimoni'])->name('testimoni.deleteTestimoni');
+        Route::delete('/deleteTestiCategory/{id_testimoni}', [testimoni_controller::class, 'deleteCategory'])->name('testimoni.deleteTestimoniCategory');
+        Route::delete('/deleteTestiTheme/{id_testimoni}', [testimoni_controller::class, 'deleteTheme'])->name('testimoni.deleteTestimoniTheme');
     });
 
     Route::get('/promosi', [PromosiController::class, 'getPromo'])->name('promosi');
     Route::prefix('promosi')->group(function () {
+        Route::get('/pastPromo', [PromosiController::class, 'getPastPromo'])->name('promosi.past_promosi');
         Route::get('/addPromosi', [PromosiController::class, 'index'])->name('promosi.tambahPromosi');
         Route::post('/tambahPromo', [PromosiController::class, 'addPromo'])->name('promosi.addPromo');
         Route::post('/uploadImage', [PromosiController::class, 'uploadImage'])->name('promosi.uploadImage');
         Route::post('/saveImage', [PromosiController::class, 'saveImage'])->name('promosi.saveImage');
         Route::get('/editPromo/{id_promo}', [PromosiController::class, 'editPromo'])->name('promosi.editPromo');
+        Route::post('updatepromoImage/{id_promo}', [PromosiController::class, 'updatePromoImage'])->name('promosi.updateImagePromo');
         Route::delete('/deletePromo/{id_promo}', [PromosiController::class, 'deletePromosi'])->name('promosi.deletePromo');
         Route::post('/updatePromo/{id_promo}', [PromosiController::class, 'updatePromo'])->name('promosi.updatePromo');
-        Route::delete('/deletePromoImg/{id_promo_img}', [PromosiController::class, 'deleteImage'])->name('promosi.deletePromoImg');
         Route::get('/searchPromo', [PromosiController::class, 'searchPromo'])->name('promosi.searchPromo');
+        Route::get('/searchPastPromo', [PromosiController::class, 'searchPastPromo'])->name('promosi.searchPastPromo');
     });
 
     // Grouped routes for costume-related actions
@@ -122,9 +139,14 @@ Route::group(['middleware' => ['auth', 'admin']], function() {
         Route::delete('/deleteImage/{id_image}', [costume_controller::class, 'deleteImage'])->name('kostum.imageDelete');;
         // Route to add categories to a costume
         Route::post('/addCategory', [costume_controller::class, 'addCategory'])->name('kostum.addCategory');
+        Route::post('/addColor', [costume_controller::class, 'addColor'])->name('kostum.addColor');
+        Route::post('/addTheme', [costume_controller::class, 'addTheme'])->name('kostum.addTheme');
         Route::post('/updateCostume/{id_costume}', [costume_controller::class, 'updateCostume'])->name('kostum.updateCostume');
         Route::post('/updateCategory', [costume_controller::class, 'updateCategory'])->name('kostum.updateCategory');
+        Route::post('/kostum/updateStatus/{id_costume}', [costume_controller::class, 'updateStatus'])->name('kostum.updateStatus');
         Route::delete('/deleteCategory/{id_costume_category}', [costume_controller::class, 'deleteCategory'])->name('kostum.deleteCategory');
+        Route::delete('/deleteColor/{id_costume_color}', [costume_controller::class, 'deleteColor'])->name('kostum.deleteColor');
+        Route::delete('/deleteTheme/{id_costume_theme}', [costume_controller::class, 'deleteTheme'])->name('kostum.deleteTheme');
         Route::delete('/deleteCostume/{id_costume}', [costume_controller::class, 'deleteCostume'])->name('kostum.deleteCostume');
     });
 

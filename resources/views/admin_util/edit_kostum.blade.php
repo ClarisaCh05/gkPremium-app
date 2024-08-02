@@ -64,10 +64,51 @@
         }
 
         .preview-category-box .tags .remove-category {
-            padding: 8px 0 0 16px;
+            padding: 8px;
             margin-right: 8px; 
             background-color: salmon;
             border: none;
+        }
+
+        .preview-category-box .tags .remove-color {
+            padding: 8px;
+            margin-right: 8px; 
+            background-color: salmon;
+            border: none;
+        }
+
+        .preview-category-box .tags .remove-theme {
+            padding: 8px;
+            margin-right: 8px; 
+            background-color: salmon;
+            border: none;
+        }
+
+        h3 {
+            margin-top: 16px;
+        }
+
+        input {
+            margin-bottom: 4px;
+        }
+
+        .edit-btn {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .edit-btn button {
+            text-align: center;
+            background-color: var(--tambah);
+            border: none;
+            padding: 8px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        .edit-btn button i {
+            margin-left: 16px;
         }
     </style>
 @endsection
@@ -104,8 +145,8 @@
                     </div>
                 </div>
             </div>
-            <div class="inputs-ctr">
-                <div class="inputs">
+            <div class="row inputs-ctr">
+                <div class="col-md-6 inputs">
                     <div class="input">
                         <h3>Kategori</h3>
                         <div class="preview-category-box">
@@ -149,26 +190,156 @@
                     </div>
                     <div class="input">
                         <h3>Nama Kostum</h3>
-                        <input type="text" class="name" name="name" value="{{ $item->name }}" placeholder="{{ $item->name }}">
+                        <input type="text" class="form-control name" name="name" value="{{ $item->name }}" placeholder="{{ $item->name }}">
                     </div>
                     <div class="input">
                         <h3>Ukuran</h3>
                         <select name="size" class="form-select" id="select-size" style="width: 50%">
-                            <option value="{{ $item->size }}" selected>{{ $item->size }}</option>
-                            <option value="anak">Anak</option>
-                            <option value="dewasa">Dewasa</option>
-                            <option value="anak dan dewasa">Anak & Dewasa</option>
+                            <option value="{{ $item->size }}" selected>@sizeLabel($item->size)</option>
+                            <option value="semua ukuran">Semua Ukuran</option>
+                            <option value="" disabled></option>
+                            <hr>
+                            <option value="" disabled></option>
+                            <option value="Bayi" disabled style="font-weight: bold;">Bayi</option>
+                            <option value="" disabled></option>
+                            <option value="3m">3 - 6 Bulan</option>
+                            <option value="6m">6 - 9 Bulan</option>
+                            <option value="9m">9 - 12 Bulan</option>
+                            <option value="12m">12 - 18 Bulan</option>
+                            <option value="18m">18 - 24 Bulan</option>
+                            <option value="" disabled></option>
+                            <hr>
+                            <option value="" disabled></option>
+                            <option value="balita" disabled style="font-weight: bold;">Balita</option>
+                            <option value="" disabled></option>
+                            <option value="2t">2 Tahun</option>
+                            <option value="3t">3 Tahun</option>
+                            <option value="4t">4 Tahun</option>
+                            <option value="5t">5 Tahun</option>
+                            <option value="" disabled></option>
+                            <hr>
+                            <option value="" disabled></option>
+                            <option value="anak" disabled style="font-weight: bold;">Anak</option>
+                            <option value="" disabled></option>
+                            <option value="xs-a">4 Tahun</option>
+                            <option value="s-a">5 - 6 Tahun</option>
+                            <option value="m-a">7 - 8 Tahun</option>
+                            <option value="l-a">9 - 12 Tahun</option>
+                            <option value="" disabled></option>
+                            <hr>
+                            <option value="" disabled></option>
+                            <option value="remaja" disabled style="font-weight: bold;">Remaja</option>
+                            <option value="" disabled></option>
+                            <option value="xs-r">12 - 13 Tahun</option>
+                            <option value="s-r">14 - 15 Tahun</option>
+                            <option value="m-r">15 - 16 Tahun</option>
+                            <option value="l-r">16 - 18 Tahun</option>
+                            <option value="" disabled></option>
+                            <hr>
+                            <option value="" disabled></option>
+                            <option value="dewasa" disabled style="font-weight: bold;">Dewasa Wanita</option>
+                            <option value="" disabled></option>
+                            <option value="xs-w">XS</option>
+                            <option value="s-w">S</option>
+                            <option value="m-w">M</option>
+                            <option value="l-w">L</option>
+                            <option value="xl-w">XL</option>
+                            <option value="" disabled></option>
+                            <hr>
+                            <option value="" disabled></option>
+                            <option value="dewasa" disabled style="font-weight: bold;">Dewasa Pria</option>
+                            <option value="" disabled></option>
+                            <option value="xs-p">XS</option>
+                            <option value="s-p">S</option>
+                            <option value="m-p">M</option>
+                            <option value="l-p">L</option>
+                            <option value="xl-p">XL</option>
+                            <option value="" disabled></option>
+                        </select>
+                    </div>
+                    <div class="input-color">
+                        <h3>Warna</h3>
+                        <div class="preview-category-box">
+                            @foreach ($costume_color as $cc)
+                                @foreach ($colors as $color)
+                                    @if ($cc->id_color == $color->id_color)
+                                        <div class="tags" id="{{ $color->id_color }}">
+                                            <button class="remove-color" data-costume-color="{{ $cc->id_costume_color }}" data-csrf="{{ csrf_token() }}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <span class="tag" id="{{ $color->id_color }}">{{ $color->color }}</span>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endforeach
+                        </div>
+                        <select name="color" class="form-select" id="multiple-select-field-color" data-placeholder="Pilih Warna" multiple>
+                            <option value="1">Merah</option>
+                            <option value="2">Oranye / Jingga</option>
+                            <option value="3">Kuning</option>
+                            <option value="4">Hijau</option>
+                            <option value="5">Biru</option>
+                            <option value="6">Ungu</option>
+                            <option value="7">Pink</option>
+                            <option value="8">Cokelat</option>
+                            <option value="9">Hitam</option>
+                            <option value="10">Putih</option>
+                            <option value="11">Abu-abu</option>
+                        </select>
+                    </div>
+                    <div class="input-theme">
+                        <h3>Tema</h3>
+                        <div class="preview-category-box">
+                            @foreach ($costume_theme as $ct)
+                                @foreach ($themes as $theme)
+                                    @if ($ct->id_theme == $theme->id_theme)
+                                        <div class="tags" id="{{ $theme->id_theme }}">
+                                            <button class="remove-theme" data-costume-theme="{{ $ct->id_costume_theme }}" data-csrf="{{ csrf_token() }}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <span class="tag" id="{{ $theme->id_theme }}">{{ $theme->theme }}</span>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endforeach
+                        </div>
+                        <select name="theme" class="form-select" id="multiple-select-field-theme" data-placeholder="Pilih Tema" multiple>
+                            <option value="1">Ancient Civilization / Peradaban Kuno</option>
+                            <option value="2">Medieval / Renaissance / Abad Pertengahan</option>
+                            <option value="3">90's</option>
+                            <option value="4">Wild West</option>
+                            <option value="5">Film dan Acara TV</option>
+                            <option value="6">Anime</option>
+                            <option value="7">Superhero dan Penjahat</option>
+                            <option value="8">Ikon Musik</option>
+                            <option value="9">Karakter Video Game</option>
+                            <option value="10">Karakter Kartun</option>
+                            <option value="11">Karakter Cerita / Dongeng</option>
+                            <option value="12">Makhluk Mitos</option>
+                            <option value="13">Penyihir</option>
+                            <option value="14">Bajak Laut</option>
+                            <option value="15">Putri Duyung</option>
+                            <option value="16">Vampir dan Manusia Serigala</option>
+                            <option value="17">Steampunk</option>
+                            <option value="18">Dokter dan Perawat</option>
+                            <option value="19">Polisi</option>
+                            <option value="20">Pemadam Kebakaran</option>
+                            <option value="21">Militer</option>
+                            <option value="22">Pelaut</option>
+                            <option value="23">Ilmuwan</option>
+                            <option value="24">Pilot dan Pramugari</option>
+                            <option value="25">Hewan</option>
                         </select>
                     </div>
                 </div>
-                <div class="inputs">
+                <div class="col-md-6 inputs">
                     <div class="input">
                         <h3>Harga</h3>
-                        <input type="number" class="price" name="price" placeholder="{{ $item->price }}" value="{{ $item->price }}">
+                        <input type="number" class="form-control price" name="price" placeholder="{{ $item->price }}" value="{{ $item->price }}">
                     </div>
                     <div class="input">
                         <h3>Deskripsi</h3>
-                        <textarea class="desc" name="description" placeholder="{{ $item->description }}">{{ $item->description }}</textarea>
+                        <textarea class="form-control desc" name="description" placeholder="{{ $item->description }}">{{ $item->description }}</textarea>
                     </div>
                 </div>
             </div>
@@ -209,8 +380,24 @@
             closeOnSelect: false,
         });
 
+        $('#multiple-select-field-color').select2( {
+            theme: "bootstrap-5",
+            width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+            placeholder: $( this ).data( 'placeholder' ),
+            closeOnSelect: false,
+        });
+
+        $('#multiple-select-field-theme').select2( {
+            theme: "bootstrap-5",
+            width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+            placeholder: $( this ).data( 'placeholder' ),
+            closeOnSelect: false,
+        });
+
         let removeImgId = [];
         let removeCatId = [];
+        let removeColorId = [];
+        let removeThemeId = [];
 
         $(document).ready(function() {
             $('.remove-img').each(function() {
@@ -250,6 +437,46 @@
                 });
             });
 
+            $('.remove-color').each(function() {
+                $(this).on('click', function(e) {
+                    e.preventDefault();
+                    console.log("click")
+                    var id_cos_color = $(this).data('costume-color');
+                    removeColorId.push(id_cos_color);
+                    console.log("id color:", removeColorId);
+
+                    $(this).closest('.tags').remove();
+
+                    var token = $(this).data('csrf');
+
+                    $.each(removeColorId, function(index, value) {
+                        deleteColor(value, token).fail(function(jqXHR, textStatus, errorThrown) {
+                            console.log('Error deleting color:', errorThrown);
+                        });
+                    });
+                });
+            });
+
+            $('.remove-theme').each(function() {
+                $(this).on('click', function(e) {
+                    e.preventDefault();
+                    console.log("click")
+                    var id_cos_theme = $(this).data('costume-theme');
+                    removeThemeId.push(id_cos_theme);
+                    console.log("id theme:", removeThemeId);
+
+                    $(this).closest('.tags').remove();
+
+                    var token = $(this).data('csrf');
+
+                    $.each(removeThemeId, function(index, value) {
+                        deleteTheme(value, token).fail(function(jqXHR, textStatus, errorThrown) {
+                            console.log('Error deleting theme:', errorThrown);
+                        });
+                    });
+                });
+            });
+
             $('form.update-costume').on('submit', function(e) {
                 e.preventDefault();
 
@@ -261,6 +488,12 @@
 
                 var select2Values = $('#multiple-select-field').val();
                 console.log('Selected values:', select2Values);
+
+                var colorValues = $('#multiple-select-field-color').val();
+                console.log('Selected colors:', colorValues);
+
+                var themeValues = $('#multiple-select-field-theme').val();
+                console.log('Selected themes:', themeValues);
 
                 var formData = new FormData(this);
                 formData.append('id_costume', costumeId);
@@ -338,6 +571,44 @@
                         }
                     });   
                 }  
+
+                if (colorValues.length > 0) {
+                    $.ajax({
+                        url: '{{ route('kostum.addColor') }}',
+                        method: 'POST',
+                        data: {
+                            id_costume: costumeId,
+                            color: colorValues,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function () {
+                            console.log('Color added to database');
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Color addition error:', error);
+                            alert('Color addition error: ' + error);
+                        }
+                    });
+                }
+
+                if (themeValues.length > 0) {
+                    $.ajax({
+                        url: '{{ route('kostum.addTheme') }}',
+                        method: 'POST',
+                        data: {
+                            id_costume: costumeId,
+                            theme: themeValues,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function () {
+                            console.log('Theme added to database');
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Theme addition error:', error);
+                            alert('Theme addition error: ' + error);
+                        }
+                    });
+                }
             })
         });
 
@@ -362,8 +633,12 @@
                     if (response.categories && response.categories.length > 0) {
                         // Update Select2 categories
                         $('#multiple-select-field').val(response.categories.map(c => c.id_category)).trigger('change');
+                        $('#multiple-select-field-color').val(response.colors.map(cl => cl.id_color)).trigger('change');
+                        $('#multiple-select-field-theme').val(response.theme.map(t => t.id_theme)).trigger('change');
                     } else {
                         $('#multiple-select-field').val([]).trigger('change');
+                        $('#multiple-select-field-color').val([]).trigger('change');
+                        $('#multiple-select-field-theme').val([]).trigger('change');
                     }
 
                     // Clear existing images and add new images
@@ -430,6 +705,42 @@
                     });
                 });
             });
+
+            $('.remove-color').off('click').on('click', function(e) {
+                e.preventDefault();
+                console.log("click")
+                var id_cos_color = $(this).data('costume-color');
+                removeColorId.push(id_cos_color);
+                console.log("id color:", removeColorId);
+
+                $(this).closest('.tags').remove();
+
+                var token = $(this).data('csrf');
+
+                $.each(removeColorId, function(index, value) {
+                    deleteColor(value, token).fail(function(jqXHR, textStatus, errorThrown) {
+                        console.log('Error deleting color:', errorThrown);
+                    });
+                });
+            });
+
+            $('.remove-theme').off('click').on('click', function(e) {
+                e.preventDefault();
+                console.log("click")
+                var id_cos_theme = $(this).data('costume-theme');
+                removeThemeId.push(id_cos_theme);
+                console.log("id cat:", removeThemeId);
+
+                $(this).closest('.tags').remove();
+
+                var token = $(this).data('csrf');
+
+                $.each(removeThemeId, function(index, value) {
+                    deleteTheme(value, token).fail(function(jqXHR, textStatus, errorThrown) {
+                        console.log('Error deleting theme:', errorThrown);
+                    });
+                });
+            });
         }
 
         function deleteImage(imageId, token) {
@@ -460,6 +771,41 @@
                 },
                 error: function(error) {
                     console.log('Error deleting category:', error);
+                    throw error;
+                }
+            });
+        }
+
+        function deleteColor(ccId, token) {
+            console.log('removed id color:', ccId)
+            return $.ajax({
+                type: 'DELETE',
+                url: '{{ route("kostum.deleteColor", ":id_costume_color") }}'.replace(':id_costume_color', ccId),
+                headers: {
+                    'X-CSRF-TOKEN': token
+                },
+                success: function(response) {
+                    console.log('Color deleted successfully');
+                },
+                error: function(error) {
+                    console.log('Error deleting color:', error);
+                    throw error;
+                }
+            });
+        }
+
+        function deleteTheme(ccId, token) {
+            return $.ajax({
+                type: 'DELETE',
+                url: '{{ route("kostum.deleteTheme", ":id_costume_theme") }}'.replace(':id_costume_theme', ccId),
+                headers: {
+                    'X-CSRF-TOKEN': token
+                },
+                success: function(response) {
+                    console.log('Theme deleted successfully');
+                },
+                error: function(error) {
+                    console.log('Error deleting theme:', error);
                     throw error;
                 }
             });

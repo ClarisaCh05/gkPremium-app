@@ -1,6 +1,34 @@
 @extends('admin_layouts.master')
 @section('css')
     <link rel="stylesheet" href="{{ asset('/css/admin_css/input_file.css') }}">
+    <style>
+        h3 {
+            margin-top: 16px;
+        }
+
+        input {
+            margin-bottom: 4px;
+        }
+
+        .submit-btn {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .submit-btn button {
+            text-align: center;
+            background-color: var(--tambah);
+            border: none;
+            padding: 8px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        .submit-btn button i {
+            margin-left: 16px;
+        }
+    </style>
 @endsection
 @section('title')
     <title>GK Tambah Kostum</title>
@@ -12,13 +40,13 @@
                     <h1>Tambah Kostum</h1>
                 </a>
             </div>
-            <form class="add-costume">
+            <form class="container add-costume" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="inputs-ctr">
-                    <div class="inputs">
+                <div class="row inputs-ctr">
+                    <div class="col-md-6 inputs">
                         <div class="input">
                             <h3>Nama Kostum</h3>
-                            <input type="text" name="name" class="name">
+                            <input type="text" name="name" class="form-control name">
                         </div>
                         <div class="input-cat">
                             <h3>Kategori</h3>
@@ -46,24 +74,128 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="input">
-                            <h3>Ukuran</h3>
-                            <select class="form-select size" name="size">
-                                <option default></option>
-                                <option value="anak">Anak</option>
-                                <option value="dewasa">Dewasa</option>
-                                <option value="anak dan dewasa">Anak & Dewasa</option>
+                        <div class="col-md-6 input" style="padding-left: 0px;">
+                            <div class="filter-ukuran">
+                                <h3>Ukuran</h3>
+                                <select name="size" class="form-select size" id="sizes">
+                                    <option value="">Pilih Ukuran</option>
+                                    <option value="semua ukuran">Semua Ukuran</option>
+                                    <option value="" disabled></option>
+                                    <hr>
+                                    <option value="" disabled></option>
+                                    <option value="Bayi" disabled style="font-weight: bold;">Bayi</option>
+                                    <option value="" disabled></option>
+                                    <option value="3m">3 - 6 Bulan</option>
+                                    <option value="6m">6 - 9 Bulan</option>
+                                    <option value="9m">9 - 12 Bulan</option>
+                                    <option value="12m">12 - 18 Bulan</option>
+                                    <option value="18m">18 - 24 Bulan</option>
+                                    <option value="" disabled></option>
+                                    <hr>
+                                    <option value="" disabled></option>
+                                    <option value="balita" disabled style="font-weight: bold;">Balita</option>
+                                    <option value="" disabled></option>
+                                    <option value="2t">2 Tahun</option>
+                                    <option value="3t">3 Tahun</option>
+                                    <option value="4t">4 Tahun</option>
+                                    <option value="5t">5 Tahun</option>
+                                    <option value="" disabled></option>
+                                    <hr>
+                                    <option value="" disabled></option>
+                                    <option value="anak" disabled style="font-weight: bold;">Anak</option>
+                                    <option value="" disabled></option>
+                                    <option value="xs-a">4 Tahun</option>
+                                    <option value="s-a">5 - 6 Tahun</option>
+                                    <option value="m-a">7 - 8 Tahun</option>
+                                    <option value="l-a">9 - 12 Tahun</option>
+                                    <option value="" disabled></option>
+                                    <hr>
+                                    <option value="" disabled></option>
+                                    <option value="remaja" disabled style="font-weight: bold;">Remaja</option>
+                                    <option value="" disabled></option>
+                                    <option value="xs-r">12 - 13 Tahun</option>
+                                    <option value="s-r">14 - 15 Tahun</option>
+                                    <option value="m-r">15 - 16 Tahun</option>
+                                    <option value="l-r">16 - 18 Tahun</option>
+                                    <option value="" disabled></option>
+                                    <hr>
+                                    <option value="" disabled></option>
+                                    <option value="dewasa" disabled style="font-weight: bold;">Dewasa Wanita</option>
+                                    <option value="" disabled></option>
+                                    <option value="xs-w">XS</option>
+                                    <option value="s-w">S</option>
+                                    <option value="m-w">M</option>
+                                    <option value="l-w">L</option>
+                                    <option value="xl-w">XL</option>
+                                    <option value="" disabled></option>
+                                    <hr>
+                                    <option value="" disabled></option>
+                                    <option value="dewasa" disabled style="font-weight: bold;">Dewasa Pria</option>
+                                    <option value="" disabled></option>
+                                    <option value="xs-p">XS</option>
+                                    <option value="s-p">S</option>
+                                    <option value="m-p">M</option>
+                                    <option value="l-p">L</option>
+                                    <option value="xl-p">XL</option>
+                                    <option value="" disabled></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-color">
+                            <h3>Warna</h3>
+                            <select name="color" class="form-select" id="multiple-select-field-color" data-placeholder="Pilih Warna" multiple>
+                                <option value="1">Merah</option>
+                                <option value="2">Oranye / Jingga</option>
+                                <option value="3">Kuning</option>
+                                <option value="4">Hijau</option>
+                                <option value="5">Biru</option>
+                                <option value="6">Ungu</option>
+                                <option value="7">Pink</option>
+                                <option value="8">Cokelat</option>
+                                <option value="9">Hitam</option>
+                                <option value="10">Putih</option>
+                                <option value="11">Abu-abu</option>
+                            </select>
+                        </div>
+                        <div class="input-theme">
+                            <h3>Tema</h3>
+                            <select name="theme" class="form-select" id="multiple-select-field-theme" data-placeholder="Pilih Tema" multiple>
+                                <option value="1">Ancient Civilization / Peradaban Kuno</option>
+                                <option value="2">Medieval / Renaissance / Abad Pertengahan</option>
+                                <option value="3">90's</option>
+                                <option value="4">Wild West</option>
+                                <option value="5">Film dan Acara TV</option>
+                                <option value="6">Anime</option>
+                                <option value="7">Superhero dan Penjahat</option>
+                                <option value="8">Ikon Musik</option>
+                                <option value="9">Karakter Video Game</option>
+                                <option value="10">Karakter Kartun</option>
+                                <option value="11">Karakter Cerita / Dongeng</option>
+                                <option value="12">Makhluk Mitos</option>
+                                <option value="13">Penyihir</option>
+                                <option value="14">Bajak Laut</option>
+                                <option value="15">Putri Duyung</option>
+                                <option value="16">Vampir dan Manusia Serigala</option>
+                                <option value="17">Steampunk</option>
+                                <option value="18">Dokter dan Perawat</option>
+                                <option value="19">Polisi</option>
+                                <option value="20">Pemadam Kebakaran</option>
+                                <option value="21">Militer</option>
+                                <option value="22">Pelaut</option>
+                                <option value="23">Ilmuwan</option>
+                                <option value="24">Pilot dan Pramugari</option>
+                                <option value="25">Hewan</option>
                             </select>
                         </div>
                     </div>
-                    <div class="inputs">
+                    <div class="col-md-6 inputs">
                         <div class="input">
                             <h3>Harga</h3>
-                            <input type="number" name="price" class="price">
+                            <input type="number" name="price" class="form-control price">
                         </div>
                         <div class="input">
                             <h3>Deskripsi</h3>
-                            <textarea name="description" class="description"></textarea>
+                            <textarea name="description" class="form-control description"></textarea>
                         </div>
                         <div class="input-foto">
                             <h3>Foto</h3>
@@ -88,6 +220,20 @@
     <script type="text/javascript">
 
         $('#multiple-select-field').select2( {
+            theme: "bootstrap-5",
+            width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+            placeholder: $( this ).data( 'placeholder' ),
+            closeOnSelect: false,
+        });
+
+        $('#multiple-select-field-color').select2( {
+            theme: "bootstrap-5",
+            width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+            placeholder: $( this ).data( 'placeholder' ),
+            closeOnSelect: false,
+        });
+
+        $('#multiple-select-field-theme').select2( {
             theme: "bootstrap-5",
             width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
             placeholder: $( this ).data( 'placeholder' ),
@@ -120,6 +266,12 @@
             var select2Values = $('#multiple-select-field').val();
             console.log('Selected values:', select2Values);
 
+            var colorValues = $('#multiple-select-field-color').val();
+            console.log('Selected colors:', colorValues);
+
+            var themeValues = $('#multiple-select-field-theme').val();
+            console.log('Selected themes:', themeValues);
+
             var fileInput = $('#multiplefileupload')[0];
             var files = fileInput.files;
             console.log('Files:', files);
@@ -139,7 +291,10 @@
             let formData = new FormData(this);
 
             formData.append('_token', '{{ csrf_token() }}');
+            formData.append('status', 0);
             formData.append('categories', JSON.stringify(select2Values));
+            formData.append('color', JSON.stringify(colorValues));
+            formData.append('theme', JSON.stringify(themeValues));
 
             $.ajax({
                 url: '{{ route('kostum.addCostume') }}',
@@ -203,6 +358,42 @@
                             alert('Category addition error: ' + error);
                         }
                     });
+
+                    $.ajax({
+                            url: '{{ route('kostum.addColor') }}',
+                            method: 'POST',
+                            data: {
+                                id_costume: costumeId,
+                                color: colorValues,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function () {
+                                console.log('Color added to database');
+                                resetForm();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Color addition error:', error);
+                            alert('Color addition error: ' + error);
+                        }
+                    });
+
+                    $.ajax({
+                            url: '{{ route('kostum.addTheme') }}',
+                            method: 'POST',
+                            data: {
+                                id_costume: costumeId,
+                                theme: themeValues,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function () {
+                                console.log('Theme added to database');
+                                resetForm();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Theme addition error:', error);
+                            alert('Theme addition error: ' + error);
+                        }
+                    });
                 },
 
                 error: function(xhr, status, error) {
@@ -218,6 +409,8 @@
             
             // Clear Select2 selected values
             $('#multiple-select-field').val(null).trigger('change');
+            $('#multiple-select-field-color').val(null).trigger('change');
+            $('#multiple-select-field-theme').val(null).trigger('change');
             
             // Reset file input
             $('#multiplefileupload').fileinput('clear');

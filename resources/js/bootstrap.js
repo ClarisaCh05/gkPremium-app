@@ -26,6 +26,7 @@ window.Echo = new Echo({
     host: window.location.hostname + ':8005'
 });
 
+
 // import Pusher from 'pusher-js';
 // window.Pusher = Pusher;
 

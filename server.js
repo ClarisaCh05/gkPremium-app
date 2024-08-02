@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import Redis from 'ioredis';
 import axios from 'axios';
+import fs from 'fs';
 
 const app = express();
 app.use(cors());

@@ -53,7 +53,7 @@ class MessageController extends Controller
     
         // Format messages to include sender name and message content
         $messages = $userMessages->map(function($userMessage) {
-            $messageContent = $userMessage->message ? $userMessage->message->message : '[Deleted message]';
+            $messageContent = $userMessage->message ? htmlspecialchars_decode($userMessage->message->message) : '[Deleted message]';
             $senderName = $userMessage->sender_id == Auth::id() ? Auth::user()->name : User::find($userMessage->sender_id)->name;
     
             return [
@@ -95,8 +95,9 @@ class MessageController extends Controller
         $sender_id = Auth::id();
         $receiver_id = $request->reciever_id;
 
+        $messageContent = htmlspecialchars($request->message, ENT_QUOTES, 'UTF-8');
         $message = new Message();
-        $message->message = $request->message;
+        $message->message = $messageContent;
 
         if($message->save()) {
             try {
@@ -112,7 +113,7 @@ class MessageController extends Controller
                     'sender_id' => $sender_id,
                     'sender_name' => $sender->name,
                     'reciever_id' => $receiver_id,
-                    'content' => $message->message,
+                    'content' => htmlspecialchars_decode($message->message),
                     'created_at' => $message->created_at,
                     'message_id' => $message->id,
                 ];

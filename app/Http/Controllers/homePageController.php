@@ -17,9 +17,9 @@ class homePageController extends Controller
             ->join('costume_category', 'costume.id_costume', '=', 'costume_category.id_costume')
             ->join('category', 'costume_category.id_category', '=', 'category.id_category')
             ->join('image', 'image.id_costume', '=', 'costume.id_costume')
-            ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest', 'image.imageUrl')                
+            ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest', 'costume.status','image.imageUrl')                
             ->orderBy('costume.id_costume', 'asc')
-            ->paginate(15);
+            ->paginate(16);
         
         return $katalogs;
     }
@@ -40,7 +40,7 @@ class homePageController extends Controller
             ->join('category', 'costume_category.id_category', '=', 'category.id_category')
             ->join('image', 'image.id_costume', '=', 'costume.id_costume')
             ->where('costume_category.id_category', '=', 7)
-            ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest','image.imageUrl')                
+            ->groupBy('costume.id_costume', 'costume.name', 'costume.size', 'costume.price', 'costume.description', 'costume.views', 'costume.interest', 'costume.status','image.imageUrl')                
             ->orderBy('costume.id_costume', 'asc')
             ->paginate(3);
 
@@ -53,11 +53,52 @@ class homePageController extends Controller
         $topCostume = costume::select('costume.*', 'image.imageUrl')
             ->join('image', 'image.id_costume', '=', 'costume.id_costume')
             ->orderBy('views', 'desc') // Order by views in descending order to get the most viewed first
-            ->take(15)
+            ->take(16)
             ->get(); // Execute the query and get the results
 
         Log::info($topCostume);
         return $topCostume;
+    }
+
+    public function getTopCategories()
+    {
+        // Get the top 10 viewed costumes
+        $topCostumes = Costume::orderBy('views', 'desc')
+                            ->take(10)
+                            ->pluck('id_costume')
+                            ->toArray();
+
+        // Get the categories for the top 10 viewed costumes
+        $topCategories = DB::table('costume_category')
+            ->join('costume', 'costume_category.id_costume', '=', 'costume.id_costume')
+            ->join('category', 'costume_category.id_category', '=', 'category.id_category')
+            ->whereIn('costume_category.id_costume', $topCostumes)
+            ->select('category.id_category', 'category.category', DB::raw('count(*) as category_count'))
+            ->groupBy('category.id_category', 'category.category')
+            ->orderBy('category_count', 'desc')
+            ->take(4)
+            ->get();
+
+        // If no top categories found, return a 404 response
+        if ($topCategories->isEmpty()) {
+            return response()->json(['message' => 'No top categories found.'], 404);
+        }
+
+        // Prepare an array to hold categories with their images
+        foreach ($topCategories as $topCategory) {
+            // Get an image for the current top category by joining with the image table through id_costume
+            $categoryImage = DB::table('image')
+                ->join('costume_category', 'image.id_costume', '=', 'costume_category.id_costume')
+                ->where('costume_category.id_category', $topCategory->id_category)
+                ->select('image.imageUrl')
+                ->first();
+
+            // Add the image URL to the current category information
+            $topCategory->imageUrl = $categoryImage ? $categoryImage->imageUrl : null;
+        }
+
+        // Pass the data to the view
+        return $topCategories;
     }
 
     public function searchCostume(Request $request)
@@ -93,7 +134,9 @@ class homePageController extends Controller
             ->appends(['search' => $search, 'category' => $category]);
     
         Log::info('Search results:', ['results' => $datas->toArray()]);
+        
+        $noResults = $datas->isEmpty(); // Check if the data is empty
     
-        return view('client_util.katalog_client', ['katalogs' => $datas, 'search' => $search, 'category' => $category]);
+        return view('client_util.katalog_client', ['katalogs' => $datas, 'search' => $search, 'category' => $category, 'noResults' => $noResults]);
     }       
 }

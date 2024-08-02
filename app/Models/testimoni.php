@@ -14,4 +14,14 @@ class testimoni extends Model
     protected $table = 'testimoni';
     protected $fillable = ['id_testimoni', 'name', 'imageUrl', 'description'];
     protected $primaryKey = 'id_testimoni';
+
+    public function categories()
+    {
+        return $this->hasMany(TestimoniKategori::class, 'id_testimoni', 'id_testimoni');
+    }
+
+    public function themes()
+    {
+        return $this->hasMany(TestimoniTema::class, 'id_testimoni', 'id_testimoni');
+    }
 }

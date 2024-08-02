@@ -18,6 +18,25 @@
             padding: 8px;
             width: 50%;
         }
+
+        .submit-btn {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .submit-btn button {
+            text-align: center;
+            background-color: var(--tambah);
+            border: none;
+            padding: 8px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+
+        .submit-btn button i {
+            margin-left: 16px;
+        }
     </style>
 @endsection
 @section('main')
@@ -28,6 +47,7 @@
                 <h1>Tambah Promo</h1>
             </a>
         </div>
+        <br>
         <form class="add-promosi" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="col add-image">
@@ -38,9 +58,21 @@
             <div class="col add-details">
                 <div class="input-name">
                     <h3>Nama Promo / Promosi</h3>
-                    <input type="text" name="title" class="title">
+                    <input type="text" name="title" class="form-control title">
                 </div>
             </div>
+            <br>
+            <div class="row date" style="margin-left: 4px;">
+                <div class="col-md-6 start-date">
+                    <h3>Tanggal Mulai Promosi</h3>
+                    <input type="date" name="created_at" class="form-control">
+                </div>
+                <div class="col-md-6 end-date">
+                    <h3>Tanggal Promosi Berakhir</h3>
+                    <input type="date" name="ended_at" class="form-control">
+                </div>
+            </div>
+            <br>
             <div class="col add-promo">
                 <div class="submit-btn">
                     <button type="submit" class="tambah">

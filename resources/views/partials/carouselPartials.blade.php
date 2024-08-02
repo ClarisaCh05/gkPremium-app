@@ -22,10 +22,10 @@
 </div>
 <div class="katalog-c-ctr">
 <div class="katalog-c">
-    <h2>Pilihan Kostum</h2>
+    <h2 style="font-weight: bold;">Pilihan Kostum</h2>
     <div id="carouselExampleControls" class="carousel carousel-dark slide d-none d-sm-block" data-bs-ride="carousel">
     <div class="carousel-inner">
-        @foreach ($katalogs->chunk(5) as $chunk)
+        @foreach ($katalogs->chunk(4) as $chunk)
             <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
             <div class="cards-wrapper">
                 @foreach ($chunk as $katalog)
@@ -86,7 +86,7 @@
 <div class="container">
     <div class="row">
     <div class="col">
-        <p class="sub-title">BRIDE STATION</p>
+        <p class="sub-title" style="font-weight: bold;">BRIDE STATION</p>
         <p class="bs-desc">#bridestation menyediakan Gaun Pesta dan Gaun Pengantin.</p>
     </div>
     @foreach ($brideStation->chunk(3) as $chunk)
@@ -135,32 +135,61 @@
 </div>
 </div>
 <div class="kategori">
-<h2>Kategori Populer</h2>
-<div class="container">
-    <div class="row">
-        <a href="#" class="col category-link" id="princess" data-category="2">
-            <p>PRINCESS</p>
-        </a>
-        <a href="#" class="col category-link" id="hero" data-category="11">
-            <p>HERO</p>
-        </a>
+    <h2 style="font-weight: bold;">Kategori Populer</h2>
+    <div class="container">
+        @if($topCategories->count() > 0)
+            @foreach($topCategories->chunk(2) as $chunk)
+                <div class="row">
+                    @foreach($chunk as $category)
+                        <a href="javascript:void(0)" class="col category-link" id="{{ strtolower($category->category) }}" data-category="{{ $category->id_category }}" style="background-image: url('{{ asset($category->imageUrl) }}');">
+                            <p>{{ strtoupper($category->category) }}</p>
+                        </a>
+                    @endforeach
+                </div>
+            @endforeach
+        @else
+            <p>No categories found.</p>
+        @endif
     </div>
-    <div class="row">
-        <a href="#" class="col category-link" id="internasional" data-category="3">
-            <p>INTERNASIONAL</p>
-        </a>
-        <a href="#" class="col category-link" id="karakter" data-category="4">
-            <p>KARAKTER</p>
-        </a>
-    </div>
-    
 </div>
+<div class="container monthly-seen">
+    <div class="row">
+        <div class="col-md-5">
+            <div id="carouselExampleControls4" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                  <div class="carousel-item active">
+                    <img src="{{ asset('img/ulasan-1.jpg') }}" class="d-block w-100" alt="...">
+                  </div>
+                  <div class="carousel-item">
+                    <img src="{{ asset('img/ulasan-2.jpg') }}" class="d-block w-100" alt="...">
+                  </div>
+                  <div class="carousel-item">
+                    <img src="{{ asset('img/ulasan-3.jpg') }}" class="d-block w-100" alt="...">
+                  </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls4" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls4" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6" style="margin: 16px 0 0 8px">
+            <h1 style="font-weight: bold;">Testimoni</h1>
+            <br>
+            <p style="font-size: 24px;">Temukan testimoni para pelanggan yang telah menyewa di toko kami.</p>
+            <a href="{{ route('client.getClientTestimoni') }}" style="color:black;">Temukan testimoni lainnya</a>
+        </div>
+    </div>
 </div>
 <div class="seen-c">
-    <h2>Kostum yang Sering Dilihat</h2>
+    <h2 style="font-weight: bold;">All Time Viewed</h2>
     <div id="carouselExampleControls2" class="carousel carousel-dark slide d-none d-sm-block" data-bs-ride="carousel">
     <div class="carousel-inner">
-        @foreach ($topCostume->chunk(5) as $chunk)
+        @foreach ($topCostume->chunk(4) as $chunk)
             <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
             <div class="cards-wrapper">
                 @foreach ($chunk as $costume)

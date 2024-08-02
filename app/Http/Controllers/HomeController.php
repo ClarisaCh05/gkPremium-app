@@ -35,12 +35,14 @@ class HomeController extends Controller
         $promos = $controller->getPromo();
         $brideStation = $controller->getBrideStation();
         $topCostume = $controller->getTopViewed(); 
+        $topCategories = $controller->getTopCategories();
 
         return view('homePage', [
             'katalogs' => $katalogs,
             'promos' => $promos,
             'brideStation' => $brideStation,
-            'topCostume' => $topCostume
+            'topCostume' => $topCostume,
+            'topCategories' => $topCategories,
         ]);
     }
 

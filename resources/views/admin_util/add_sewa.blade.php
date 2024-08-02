@@ -39,8 +39,9 @@
                             <th>ID</th>
                             <th>Kostum</th>
                             <th>Tambahan</th>
-                            <th>Creted Date</th>
-                            <th>Aksi</th>
+                            <th>Tanggal Pinjam</th>
+                            <th>Tanggal Kembali</th>
+                            {{-- <th>Aksi</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -50,13 +51,14 @@
                                 <td>{{ $rent->name }}</td>
                                 <td>{{ $rent->description }}</td>
                                 <td>{{ $rent->created_at }}</td>
-                                <td>
+                                <td>{{ $rent->ended_at }}</td>
+                                {{-- <td>
                                     <div class="d-flex">
                                         <a href="javascript:void(0)" data-id="{{ $rent->id_rent }}" class="delete btn btn-danger btn-sm btn-icon rounded-circle mr-1 mb-1">
                                             <i class="fas fa-trash-alt"></i>
                                         </a>
                                     </div>
-                                </td>
+                                </td> --}}
                             </tr>
                         @empty
                             <tr>
@@ -71,15 +73,19 @@
                     <form id="tambah-sewa-form" method="POST" action="{{ route('sewa.addRent') }}">
                         @csrf
                         <h3>Tambah Sewa</h3>
-                        <p>Tanggal</p>
-                        <input type="date" value="{{ now()->format('Y-m-d') }}" disabled>
+                        <p>Tanggal Sewa</p>
+                        <input type="date" name="created_at" value="{{ now()->format('Y-m-d') }}">
+                        <p>Tanggal Kembali</p>
+                        <input type="date" name="ended_at" value="{{ now()->format('Y-m-d') }}">
                         <p>Kostum</p>
-                        <select name="id_costume" id="costume-dropdown">
+                        <input type="text" name="id_costume" id="autocomplete" placeholder="Type costumes here"/>
+                        <input type="hidden" name="id_costume" id="costume-id" />
+                        {{-- <select name="id_costume" id="costume-dropdown" class="form-control">
                             <option value="" default></option>
                             @foreach ($costumeData as $costume)
                                 <option value="{{ $costume->id_costume }}">{{ $costume->name }}</option>
                             @endforeach
-                        </select>
+                        </select> --}}
                         <p>Tambahan/Aksesoris</p>
                         <textarea name="description" id="desc-input" cols="30" rows="10"></textarea>
                         <div class="button-add">
@@ -96,8 +102,14 @@
         $('#tambah-sewa-form').on('submit', function(e) {
             e.preventDefault();
 
-            var selectedCostume = $('#costume-dropdown').val();
+            var selectedCostume = $('#costume-id').val();
             console.log(selectedCostume);
+
+            // Check if the description field is empty
+            var descInput = $('#desc-input').val();
+            if (!descInput.trim()) {
+                $('#desc-input').val('-');
+            }
 
             var formData = $(this).serialize();
         
@@ -109,8 +121,10 @@
                 contenType: false,
                 success: function(response) {
                     if (response.success) {
-                        console.log('data added to database:', response);
-                        window.location.reload(); // Reload the page
+                        console.log('Data added to database:', response);
+                        // Get the costume ID from the form or response
+                        var costumeId = $('#costume-id').val();
+                        updateCostumeStatus(costumeId, 2);
                     } else {
                         alert('Failed to add data');
                     }
@@ -118,33 +132,90 @@
             })
         })
 
-        $('#table').on('click', '.delete', function(e) {
-            e.preventDefault();
-
-            if (!confirm('Are you sure?')) {
-                return;
-            }
-
-            var rent_id = $(this).data('id');
-
+        function updateCostumeStatus(costumeId, status) {
             $.ajax({
-                url: '{{ route("sewa.deleteRent", ":id_rent") }}'.replace(':id_rent', rent_id),
-                method: 'DELETE',
+                url: '{{ route("katalog.updateStatus", ":id_costume") }}'.replace(':id_costume', costumeId),
+                method: 'POST',
                 data: {
-                    _token: '{{ csrf_token() }}'
+                    _token: '{{ csrf_token() }}', // Include the CSRF token
+                    status: status
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert('Costume deleted successfully');
-                        table.ajax.reload();
+                        console.log('Status updated successfully:', response);
+                        window.location.reload(); // Reload the page
                     } else {
-                        alert('Failed to delete costume');
+                        alert('Failed to update status: ' + response.message);
                     }
                 },
                 error: function(xhr, status, error) {
-                    alert('Error: ' + error);
+                    console.error('Error updating status:', xhr.responseText);
+                    alert('An error occurred while updating the status');
                 }
-            })
-        })
+            });
+        }
+
+        // $('#table').on('click', '.delete', function(e) {
+        //     e.preventDefault();
+
+        //     if (!confirm('Are you sure?')) {
+        //         return;
+        //     }
+
+        //     var rent_id = $(this).data('id');
+
+        //     $.ajax({
+        //         url: '{{ route("sewa.deleteRent", ":id_rent") }}'.replace(':id_rent', rent_id),
+        //         method: 'DELETE',
+        //         data: {
+        //             _token: '{{ csrf_token() }}'
+        //         },
+        //         success: function(response) {
+        //             if (response.success) {
+        //                 alert('Costume deleted successfully');
+        //                 table.ajax.reload();
+        //             } else {
+        //                 alert('Failed to delete costume');
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             alert('Error: ' + error);
+        //         }
+        //     })
+        // })
+
+        $('#autocomplete').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ route('autocomplete.costumes') }}",
+                        dataType: "json",
+                        data: {
+                            query: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.name,
+                                    value: item.id_costume
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    $('#autocomplete').val(ui.item.label);
+                    $('#costume-id').val(ui.item.value);
+                    return false;
+                    // Optionally, set a hidden input to the selected value
+                    // $('<input>').attr({
+                    //     type: 'hidden',
+                    //     name: 'id_costume',
+                    //     value: ui.item.value
+                    // }).appendTo('form');
+                    return false;
+                }
+            });
+
     </script>
 @endsection

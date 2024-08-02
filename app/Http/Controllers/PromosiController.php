@@ -7,6 +7,7 @@ use App\Models\Promosi;
 use App\Models\Promosi_Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class PromosiController extends Controller
 {
@@ -15,21 +16,45 @@ class PromosiController extends Controller
     }
 
     public function getPromo() {
-        $data = Promosi::select('promosi.*', 'promosi_image.*')
-            ->join('promosi_image', 'promosi.id_promo', '=', 'promosi_image.id_promo')
-            ->orderBy('promosi.title', 'asc')
-            ->paginate(10);
+        Promosi::where('ended_at', '<', Carbon::now())
+            ->where('is_expired', 0)
+            ->update(['is_expired' => 1]);
 
-        return view('admin_util/promosi', ['promosi' => $data]);
+        // Fetch data with pagination
+        $activePromotions = Promosi::select('promosi.*', 'promosi_image.*')
+            ->join('promosi_image', 'promosi.id_promo', '=', 'promosi_image.id_promo')
+            ->where('is_expired', 0)
+            ->orderBy('promosi.title', 'asc')
+            ->paginate(10, ['*'], 'activePage'); // Paginate active promotions
+
+        return view('admin_util.promosi', [
+            'promosi' => $activePromotions
+        ]);
+    }
+
+    public function getPastPromo() {
+        $expiredPromotions = Promosi::select('promosi.*', 'promosi_image.*')
+            ->join('promosi_image', 'promosi.id_promo', '=', 'promosi_image.id_promo')
+            ->where('is_expired', 1)
+            ->orderBy('promosi.title', 'asc')
+            ->paginate(10, ['*'], 'expiredPage'); // Paginate expired promotions
+
+        return view('admin_util.promosi_history', [
+            'promosi' => $expiredPromotions
+        ]);
     }
 
     public function addPromo(Request $request) {
         $validated = $request->validate([
-            'title' => 'required'
+            'title' => 'required',
+            'created_at' => 'required',
+            'ended_at' => 'required'
         ]);
 
         $promo = Promosi::create([
-            'title' => $validated['title']
+            'title' => $validated['title'],
+            'created_at' => $validated['created_at'],
+            'ended_at' => $validated['ended_at']
         ]);
 
         Log::info('Promo Object:', ['promo' => $promo]); // Log the entire promo object
@@ -82,15 +107,6 @@ class PromosiController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function deleteImage($id_promo_img)
-    {
-        $id_image = Promosi_Image::find($id_promo_img);
-
-        $id_image->delete();
-
-        return response()->json(['success' => true]);
-    }
-
     public function deletePromosi($id_promo)
     {
         $promo = Promosi::find($id_promo);
@@ -130,19 +146,74 @@ class PromosiController extends Controller
         return response()->json(['message' => 'Promo updated successfully']);
     }
 
+    public function updatePromoImage(Request $request, $id_promo)
+    {
+        
+        $imageUrl = $request->input('imageUrl');
+
+        $image = Promosi_Image::where('id_promo', $id_promo)->first();
+        $image->update([
+            'image' => $imageUrl
+        ]);
+
+        return response()->json(['message' => 'Promo updated successfully']);
+    }
+
     public function searchPromo(Request $request)
     {
         $search = $request->input('search');
+        $dateRange = $request->input('daterange');
 
-        $data = Promosi::select('promosi.*', 'promosi_image.*')
-            ->where('promosi.title', 'like', '%' . $search . '%')
+        $query = promosi::select('promosi.*', 'promosi_image.*')
             ->join('promosi_image', 'promosi.id_promo', '=', 'promosi_image.id_promo')
-            ->orderBy('promosi.title', 'asc')
-            ->paginate(10);
+            ->orderBy('promosi.title', 'asc');
+
+        if ($search) {
+            $query->where('promosi.title', 'like', '%' . $search . '%');
+        }
+
+        if ($dateRange) {
+            $dates = explode(' - ', $dateRange);
+            $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dates[0])->startOfDay();
+            $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dates[1])->endOfDay();
+
+            $query->whereBetween('promosi.created_at', [$startDate, $endDate])
+                ->orWhereBetween('promosi.ended_at', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate(10);
 
         return view('admin_util.promosi', ['promosi' => $data]);
     }
 
+    public function searchPastPromo(Request $request)
+    {
+        $search = $request->input('search');
+        $dateRange = $request->input('daterange');
+
+        $query = promosi::select('promosi.*', 'promosi_image.*')
+            ->join('promosi_image', 'promosi.id_promo', '=', 'promosi_image.id_promo')
+            ->where('is_expired', 1);
+
+        if ($search) {
+            $query->where('promosi.title', 'like', '%' . $search . '%');
+        }
+
+        if ($dateRange) {
+            $dates = explode(' - ', $dateRange);
+            $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dates[0])->startOfDay();
+            $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dates[1])->endOfDay();
+
+            $query->where(function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('promosi.created_at', [$startDate, $endDate])
+                ->orWhereBetween('promosi.ended_at', [$startDate, $endDate]);
+            });
+        }
+
+        $data = $query->orderBy('promosi.title', 'asc')->paginate(10, ['*'], 'expiredPage');
+
+        return view('admin_util.promosi_history', ['promosi' => $data]);
+    }
 }
 
 

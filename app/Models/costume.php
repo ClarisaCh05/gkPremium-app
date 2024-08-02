@@ -11,7 +11,7 @@ class costume extends Model
     public $timestamps = false;
 
     protected $table = 'costume';
-    protected $fillable = ['id_costume','name', 'size', 'description', 'views', 'price', 'interest'];
+    protected $fillable = ['id_costume','name', 'size', 'description', 'views', 'price', 'interest', 'status'];
     protected $primaryKey = 'id_costume';
 
     public function images()
